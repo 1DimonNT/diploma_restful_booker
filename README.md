@@ -1,134 +1,155 @@
-# Diploma Project: Restful-booker Automation
+# 🎓 Diploma Project: Demoblaze Automation
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![Pytest](https://img.shields.io/badge/Pytest-8.3-green)
-![Selene](https://img.shields.io/badge/Selene-2.1-orange)
-![Allure](https://img.shields.io/badge/Allure-2.13-red)
-![Ruff](https://img.shields.io/badge/Ruff-0.8-purple)
+![Python](https://shields.io)
+![Pytest](https://shields.io)
+![Selene](https://shields.io)
+![Allure](https://shields.io)
+![Ruff](https://shields.io)
 
 </div>
 
 ## 📋 О проекте
+Дипломный проект по автоматизации тестирования интернет-магазина [Demoblaze](https://demoblaze.com). Работа включает в себя покрытие ключевого функционала на двух уровнях:
+- **API тесты** (6 тестов) — проверка бэкенда с валидацией по JSON Schema.
+- **UI тесты** (8 тестов) — проверка интерфейса с использованием фреймворка Selene и паттерна PageObject (в Fluent стиле).
 
-Дипломный проект по автоматизации тестирования сервиса [Restful-booker](https://restful-booker.herokuapp.com/), включающий:
-
-- **API тесты** (7+ тестов) с использованием Pydantic моделей
-- **UI тесты** (7+ тестов) с использованием Selene и PageObject
-- **Mobile тесты** (5+ тестов) с использованием Appium (Wikipedia)
+---
 
 ## 🛠 Технологии и инструменты
 
 
 | Технология | Назначение |
-|------------|------------|
-| Python 3.12 | Основной язык программирования |
-| Pytest | Тестовый фреймворк |
-| Selene | Обертка над Selenium для UI тестов |
-| Requests | HTTP клиент для API тестов |
-| Pydantic | Валидация данных и модели |
-| Allure | Отчетность и логирование |
-| Ruff | Линтер и форматтер |
-| Appium | Mobile тестирование |
-| BrowserStack | Облачное устройство для mobile тестов |
+| :--- | :--- |
+| **Python 3.12** | Основной язык программирования |
+| **Pytest** | Тестовый фреймворк, управление фикстурами и маркерами |
+| **Selene** | Обертка над Selenium WebDriver для лаконичных UI тестов |
+| **Requests** | HTTP-клиент для отправки API-запросов |
+| **JSON Schema** | Валидация структуры и типов данных в ответах API |
+| **Allure** | Генерация подробных отчетов, логирование шагов и вложения |
+| **Ruff** | Быстрый линтер и форматтер кода |
+| **Selenoid** | Удаленный запуск браузеров в Docker-контейнерах |
+
+---
 
 ## 📁 Структура проекта
+
 ```text
 diploma_restful_booker/
-├── api/                   # API тесты
-│   ├── client.py          # HTTP клиент
-│   ├── models/            # Pydantic модели
-│   └── tests/             # API тесты (7+)
-├── ui/                    # UI тесты
-│   ├── pages/             # PageObject
-│   ├── tests/             # UI тесты (7+)
-│   └── conftest.py        # UI фикстуры
-├── mobile/                # Mobile тесты
-│   ├── tests/             # Mobile тесты (5+)
-│   └── conftest.py        # Mobile фикстуры
-├── utils/                 # Утилиты
-│   ├── allure_helper.py   # Allure вложения
-│   └── logger.py          # Логирование
-├── config.py              # Pydantic конфигурация
-├── conftest.py            # Глобальные фикстуры
-├── pytest.ini             # Настройки pytest
-├── pyproject.toml         # Ruff настройки
-└── requirements.txt       # Зависимости
+├── api/                        # API тестирование
+│   ├── client.py               # Custom HTTP-клиент с логированием запросов/ответов
+│   ├── schemas/                # Шаблоны JSON Schema для валидации контрактов
+│   └── tests/                  # Набор API тестов (6 тестов)
+├── ui/                         # UI тестирование
+│   ├── pages/                  # Реализация паттерна PageObject (Fluent style)
+│   ├── tests/                  # Набор UI тестов (8 тестов)
+│   └── conftest.py             # UI-специфичные фикстуры (настройка WebDriver/Selenoid)
+├── utils/                      # Вспомогательные утилиты
+│   ├── allure_helper.py        # Кастомные хелперы для интеграции с Allure
+│   ├── attach.py               # Прикрепление скриншотов, видео и логов к отчету
+│   └── logger.py               # Конфигурация логирования
+├── config.py                   # Управление конфигурацией проекта через Pydantic
+├── conftest.py                 # Глобальные фикстуры проекта
+├── pytest.ini                  # Системные настройки Pytest и маркеры
+├── pyproject.toml              # Настройки линтера Ruff
+└── requirements.txt            # Список зависимостей проекта
 ```
+
+---
+
+## 🧪 Покрытый функционал (Тест-кейсы)
+
+### 🔹 API тесты (6 тестов)
+
+| № | Метод | Эндпоинт / Описание | Ожидаемый результат |
+| :-: | :-: | :--- | :--- |
+| **1** | `POST` | `/signup` — Регистрация нового пользователя | Успешное создание (200 OK) |
+| **2** | `POST` | `/signup` — Регистрация уже существующего пользователя | Ошибка дубликата |
+| **3** | `POST` | `/bycat` — Получение товаров из категории **Phones** | Валидный список телефонов |
+| **4** | `POST` | `/bycat` — Получение товаров из категории **Laptops** | Валидный список ноутбуков |
+| **5** | `POST` | `/login` — Авторизация с неверным паролем | Ошибка аутентификации |
+| **6** | `POST` | `/login` — Авторизация несуществующего пользователя | Ошибка аутентификации |
+
+### 🔹 UI тесты (8 тестов)
+
+| № | Название теста | Сложность | Проверяемый сценарий |
+| :-: | :--- | :-: | :--- |
+| **1** | Открытие главной страницы | 🟢 Легкая | Корректное отображение витрины и элементов навигации |
+| **2** | Регистрация нового пользователя | 🟡 Средняя | Заполнение формы SignUp и проверка модального окна |
+| **3** | Выбор категории товаров | 🟡 Средняя | Фильтрация товаров на главной странице |
+| **4** | Просмотр карточки товара | 🟡 Средняя | Переход к детальной информации о выбранном продукте |
+| **5** | Логин созданным пользователем | 🔴 Высокая | Авторизация через форму Login, проверка сессии |
+| **6** | Добавление товара в корзину | 🔴 Высокая | Добавление позиции и проверка ее наличия в Cart |
+| **7** | Отправка сообщения через Contact | 🟡 Средняя | Заполнение формы обратной связи и отправка |
+| **8** | Переключение между категориями | 🟡 Средняя | Динамическое обновление сетки товаров без перезагрузки |
+
+---
 
 ## 🚀 Запуск тестов
 
-### Установка зависимостей
-
+### 1. Подготовка окружения и установка зависимостей
 ```bash
+# Создание виртуального окружения
 python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-.venv\Scripts\activate     # Windows
+
+# Активация окружения (Windows)
+.venv\Scripts\activate
+
+# Активация окружения (macOS/Linux)
+source .venv/bin/activate
+
+# Установка необходимых пакетов
 pip install -r requirements.txt
 ```
 
-### API тесты
-```bash
-pytest api/tests -m api
-```
+### 2. Локальный запуск тестов
 
-### UI тестов
-```bash
-pytest ui/tests -m ui
-```
+* **Запуск только API тестов:**
+  ```bash
+  pytest api/tests/ -v
+  ```
+* **Запуск только UI тестов:**
+  ```bash
+  pytest ui/tests/ -v
+  ```
+* **Запуск всех тестов сбором результатов для Allure:**
+  ```bash
+  pytest api/tests/ ui/tests/ --alluredir=allure-results -v
+  ```
 
-### Mobile тесты (локально)
+### 3. Генерация Allure-отчета
 ```bash
-set CONTEXT=local_emulator
-pytest mobile/tests -m mobile
-```
-
-### Mobile тесты (BrowserStack)
-```bash
-set CONTEXT=bstack
-set BROWSERSTACK_USERNAME=your_username
-set BROWSERSTACK_ACCESS_KEY=your_key
-pytest mobile/tests -m mobile
-```
-
-### Все тесты с Allure отчетом
-```bash
-pytest --alluredir=allure-results
 allure serve allure-results
 ```
 
-## 📊 Allure отчет
-Отчет содержит:
-- Скриншоты при падении UI тестов
-- Видео для mobile тестов (BrowserStack)
-- API request/response вложения
-- Логи выполнения
+### 4. Запуск через Selenoid (Удаленный браузер)
+Для выполнения тестов в облачной инфраструктуре или удаленном Selenoid-сервере, настройте файл `.env`, раскомментировав и заполнив следующие переменные:
+```env
+SELENOID_URL=https://autotests.cloud
+SELENOID_USER=user1
+SELENOID_PASSWORD=1234
+```
 
-## 🏷 Маркеры тестов
+---
 
+## 📝 Выполнение критериев диплома
+- [x] **5+ API тестов** — Реализовано 6 комплексных проверок.
+- [x] **7+ UI тестов** — Реализовано 8 сценариев.
+- [x] **Паттерн PageObject** — Использована библиотека Selene в лаконичном Fluent style.
+- [x] **Валидация контрактов** — API ответы строго проверяются через JSON Schema.
+- [x] **Allure отчетность** — Интегрированы шаги (`allure.step`) и вложения (скриншоты, логи, видео).
+- [x] **Гибкая конфигурация** — Настройки pytest, маркеры и использование Pydantic для конфигов.
+- [x] **Чистота кода** — Проект полностью проверен и отформатирован с помощью Ruff.
+- [x] **Мультиплатформенность** — Поддерживается как локальный запуск, так и удаленный через Selenoid.
 
-| Маркер | Описание |
-|--------|----------|
-| `@pytest.mark.api` | API тесты |
-| `@pytest.mark.ui` | UI тесты |
-| `@pytest.mark.mobile` | Mobile тесты |
-| `@pytest.mark.smoke` | Дымовые тесты |
-| `@pytest.mark.critical` | Критическая важность |
-
-## 📝 Требования к диплому
-- [x] 7+ API тестов
-- [x] 7+ UI тестов
-- [x] 3+ Mobile тестов (сделано 5)
-- [x] PageObject (Selene, Fluent style)
-- [x] Pydantic модели для request/response
-- [x] Allure отчетность с вложениями
-- [x] Pytest конфигурация и маркеры
-- [x] Ruff линтинг
-- [x] Поддержка BrowserStack для mobile
+---
 
 ## 👤 Автор
-Дипломный проект студента QA.GURU Дмитрия Михайловича Иванцова
+* **Студент:** Дмитрий Иванцов  
+* **Платформа:** [QA.GURU](https://qa.guru)  
+
+---
 
 ## 📄 Лицензия
-MIT
+Данный проект распространяется под лицензией [MIT](LICENSE).
