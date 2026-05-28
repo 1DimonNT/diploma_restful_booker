@@ -38,16 +38,32 @@ def add_console_logs(driver, name="📜 Console Logs"):
 def add_video(driver, name="🎥 Video"):
     try:
         session_id = driver.session_id
-        executor_url = driver.command_executor._url
+        # Пробуем получить URL несколькими способами
+        if hasattr(driver.command_executor, '_url'):
+            executor_url = driver.command_executor._url
+        elif hasattr(driver.command_executor, 'url'):
+            executor_url = driver.command_executor.url
+        else:
+            executor_url = str(driver.command_executor)
+
         selenoid_host = executor_url.replace('/wd/hub', '').split('@')[-1]
         video_url = f"https://{selenoid_host}/video/{session_id}.mp4"
+
+        # Добавляем прямую ссылку на видео (для диагностики)
+        allure.attach(
+            body=video_url,
+            name="Video URL (for debugging)",
+            attachment_type=AttachmentType.TEXT
+        )
 
         html = f"""
         <html>
             <body>
-                <video width="100%" height="100%" controls>
+                <video width="100%" height="100%" controls autoplay>
                     <source src="{video_url}" type="video/mp4">
                 </video>
+                <br>
+                <a href="{video_url}">Скачать видео</a>
             </body>
         </html>
         """
