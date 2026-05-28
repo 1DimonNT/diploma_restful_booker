@@ -51,3 +51,7 @@ logs/
 temp/
 *.db
 *.sqlite
+".env.bstack" 
+".env.credentials" 
+".env.*" 
+"!/.env.example" 
