@@ -36,7 +36,8 @@ def _get_driver(request):
             "selenoid:options": {
                 "enableVNC": True,
                 "enableVideo": True,
-                "videoName": f"{request.node.name}.mp4"
+                "videoName": f"{request.node.name}.mp4",
+                "videoScreenSize": f"{settings.WINDOW_WIDTH}x{settings.WINDOW_HEIGHT}"
             }
         }
 
@@ -82,7 +83,7 @@ def browser_management(request):
     add_console_logs(browser.config.driver)
 
     if settings.SELENOID_URL:
-        add_video(browser.config.driver)
+        add_video(browser.config.driver, name=request.node.name)
 
     if not settings.HOLD_BROWSER_OPEN:
         log.info("🔒 Closing browser...")
@@ -90,3 +91,27 @@ def browser_management(request):
         log.info("✅ Browser closed")
     else:
         log.info("ℹ️ Browser left open")
+
+
+@pytest.fixture(scope="function", autouse=True)
+def clear_browser_state():
+    """
+    Очищает состояние браузера между тестами (cookies, localStorage, sessionStorage)
+    """
+    yield
+    try:
+        browser.driver.delete_all_cookies()
+        browser.driver.execute_script("window.localStorage.clear();")
+        browser.driver.execute_script("window.sessionStorage.clear();")
+        log.debug("Browser state cleared between tests")
+    except Exception as e:
+        log.warning(f"Failed to clear browser state: {e}")
+
+
+@pytest.fixture(scope="function")
+def open_main_page():
+    """Фикстура для открытия главной страницы"""
+    with allure.step("Opening main page"):
+        browser.open("/")
+        log.info(f"Opened: {settings.UI_BASE_URL}")
+        return browser

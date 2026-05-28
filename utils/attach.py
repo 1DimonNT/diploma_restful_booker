@@ -14,8 +14,12 @@ def add_screenshot(driver, name='screenshot'):
 def add_console_logs(driver, name='browser_logs'):
     """Добавляет логи браузера в Allure отчет"""
     try:
-        log = "".join(f'{text}\n' for text in driver.execute("getLog", {'type': 'browser'})['value'])
-        allure.attach(log, name, AttachmentType.TEXT, '.log')
+        logs = driver.get_log("browser")
+        if logs:
+            log_text = "\n".join([f"[{log['level']}] {log['message']}" for log in logs])
+            allure.attach(log_text, name, AttachmentType.TEXT, '.log')
+        else:
+            allure.attach("No console logs available", name, AttachmentType.TEXT, '.log')
     except Exception:
         allure.attach("No console logs available", name, AttachmentType.TEXT, '.log')
 
@@ -32,7 +36,6 @@ def add_video(driver, name=None):
 
     video_name = name if name else driver.session_id
 
-    # Используем настройки из config
     selenoid_video_url = getattr(settings, 'SELENOID_VIDEO_URL', 'https://ru.selenoid.autotests.cloud/video')
     video_url = f"{selenoid_video_url}/{video_name}.mp4"
 
