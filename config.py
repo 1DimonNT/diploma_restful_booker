@@ -1,87 +1,34 @@
-"""
-Конфигурация проекта с использованием Pydantic Settings.
-Управление переменными окружения и настройками для разных окружений.
-"""
+import os
+from dotenv import load_dotenv
 
-from pydantic_settings import BaseSettings
-from pydantic import Field
-from typing import Optional
+load_dotenv()
 
 
-class ApiSettings(BaseSettings):
-    """Настройки API"""
+class Settings:
+    """Настройки проекта из переменных окружения"""
 
-    base_url: str = Field(default="https://api.demoblaze.com", alias="API_BASE_URL")
-    timeout: int = Field(default=30, alias="API_TIMEOUT")
+    # API настройки
+    API_BASE_URL = os.getenv("API_BASE_URL", "https://api.demoblaze.com")
+    API_TIMEOUT = int(os.getenv("API_TIMEOUT", 30))
 
-    model_config = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "case_sensitive": False,
-        "extra": "ignore"
-    }
+    # UI настройки
+    UI_BASE_URL = os.getenv("UI_BASE_URL", "https://demoblaze.com")
+    UI_TIMEOUT = int(os.getenv("UI_TIMEOUT", 10))
 
-    @property
-    def full_base_url(self) -> str:
-        return self.base_url
+    # Браузер
+    BROWSER = os.getenv("BROWSER", "chrome")
+    BROWSER_VERSION = os.getenv("BROWSER_VERSION", "128.0")
+    WINDOW_WIDTH = int(os.getenv("WINDOW_WIDTH", 1920))
+    WINDOW_HEIGHT = int(os.getenv("WINDOW_HEIGHT", 1080))
+    HOLD_BROWSER_OPEN = os.getenv("HOLD_BROWSER_OPEN", "false").lower() == "true"
 
+    # Selenoid
+    SELENOID_URL = os.getenv("SELENOID_URL")
+    SELENOID_USER = os.getenv("SELENOID_USER")
+    SELENOID_PASSWORD = os.getenv("SELENOID_PASSWORD")
 
-class UISettings(BaseSettings):
-    """Настройки UI тестов"""
-
-    base_url: str = Field(default="https://demoblaze.com", alias="UI_BASE_URL")
-    timeout: float = Field(default=10.0, alias="UI_TIMEOUT")
-    browser: str = Field(default="chrome", alias="BROWSER")
-    browser_version: str = Field(default="128.0", alias="BROWSER_VERSION")
-    window_width: int = Field(default=1920, alias="WINDOW_WIDTH")
-    window_height: int = Field(default=1080, alias="WINDOW_HEIGHT")
-    headless: bool = Field(default=False, alias="HEADLESS")
-    hold_browser_open: bool = Field(default=False, alias="HOLD_BROWSER_OPEN")
-    save_page_source_on_failure: bool = Field(default=True, alias="SAVE_PAGE_SOURCE_ON_FAILURE")
-
-    # Selenoid настройки
-    selenoid_url: Optional[str] = Field(default=None, alias="SELENOID_URL")
-    selenoid_user: Optional[str] = Field(default=None, alias="SELENOID_USER")
-    selenoid_password: Optional[str] = Field(default=None, alias="SELENOID_PASSWORD")
-
-    model_config = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "case_sensitive": False,
-        "extra": "ignore"
-    }
+    # Общие
+    TIMEOUT = int(os.getenv("TIMEOUT", 10))
 
 
-class MobileSettings(BaseSettings):
-    """Настройки Mobile тестов"""
-
-    use_browserstack: bool = Field(default=False, alias="USE_BROWSERSTACK")
-    browserstack_username: Optional[str] = Field(default=None, alias="BROWSERSTACK_USERNAME")
-    browserstack_access_key: Optional[str] = Field(default=None, alias="BROWSERSTACK_ACCESS_KEY")
-    browserstack_app_url: Optional[str] = Field(default=None, alias="BROWSERSTACK_APP_URL")
-
-    model_config = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "case_sensitive": False,
-        "extra": "ignore"
-    }
-
-
-class Settings(BaseSettings):
-    """Главный класс настроек"""
-
-    api: ApiSettings = Field(default_factory=ApiSettings)
-    ui: UISettings = Field(default_factory=UISettings)
-    mobile: MobileSettings = Field(default_factory=MobileSettings)
-
-    model_config = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "case_sensitive": False,
-        "extra": "ignore"
-    }
-
-
-# Создаем глобальный объект настроек
 settings = Settings()
