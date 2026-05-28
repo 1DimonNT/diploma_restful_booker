@@ -27,6 +27,10 @@ class Settings:
     SELENOID_USER = os.getenv("SELENOID_USER")
     SELENOID_PASSWORD = os.getenv("SELENOID_PASSWORD")
 
+    # Selenoid видео
+    SELENOID_VIDEO_URL = os.getenv("SELENOID_VIDEO_URL", "https://ru.selenoid.autotests.cloud/video")
+    VIDEO_DOWNLOAD_TIMEOUT = int(os.getenv("VIDEO_DOWNLOAD_TIMEOUT", 30))
+
     # Общие
     TIMEOUT = int(os.getenv("TIMEOUT", 10))
 

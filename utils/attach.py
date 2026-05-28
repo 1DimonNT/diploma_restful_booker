@@ -1,72 +1,59 @@
-"""
-Вспомогательные функции для добавления вложений в Allure отчет.
-"""
-
 import allure
-import logging
+import requests
+import time
 from allure_commons.types import AttachmentType
-import re
+from config import settings
 
 
-def add_screenshot(driver, name="📸 Screenshot"):
+def add_screenshot(driver, name='screenshot'):
+    """Добавляет скриншот в Allure отчет"""
+    png = driver.get_screenshot_as_png()
+    allure.attach(body=png, name=name, attachment_type=AttachmentType.PNG, extension='.png')
+
+
+def add_console_logs(driver, name='browser_logs'):
+    """Добавляет логи браузера в Allure отчет"""
     try:
-        screenshot = driver.get_screenshot_as_png()
-        allure.attach(body=screenshot, name=name, attachment_type=AttachmentType.PNG)
-    except Exception as e:
-        logging.error(f"Failed to take screenshot: {e}")
+        log = "".join(f'{text}\n' for text in driver.execute("getLog", {'type': 'browser'})['value'])
+        allure.attach(log, name, AttachmentType.TEXT, '.log')
+    except Exception:
+        allure.attach("No console logs available", name, AttachmentType.TEXT, '.log')
 
 
-def add_page_source(driver, name="📄 Page Source"):
+def add_page_source(driver, name='page_source'):
+    """Добавляет HTML страницы в Allure отчет"""
+    html = driver.page_source
+    allure.attach(html, name, AttachmentType.HTML, '.html')
+
+
+def add_video(driver, name=None):
+    """Добавляет видео из Selenoid в отчет Allure"""
+    time.sleep(3)
+
+    video_name = name if name else driver.session_id
+
+    # Используем настройки из config
+    selenoid_video_url = getattr(settings, 'SELENOID_VIDEO_URL', 'https://ru.selenoid.autotests.cloud/video')
+    video_url = f"{selenoid_video_url}/{video_name}.mp4"
+
     try:
-        page_source = driver.page_source
-        allure.attach(body=page_source, name=name, attachment_type=AttachmentType.HTML)
-    except Exception as e:
-        logging.error(f"Failed to capture page source: {e}")
-
-
-def add_console_logs(driver, name="📜 Console Logs"):
-    try:
-        logs = driver.get_log("browser")
-        if logs:
-            log_text = "\n".join([f"[{log['level']}] {log['message']}" for log in logs])
-            log_text = re.sub(r'[^\x20-\x7E\n\r\t]', '', log_text)
-            allure.attach(body=log_text, name=name, attachment_type=AttachmentType.TEXT)
-    except Exception as e:
-        logging.error(f"Failed to capture console logs: {e}")
-
-
-def add_video(driver, name="🎥 Video"):
-    try:
-        session_id = driver.session_id
-        # Пробуем получить URL несколькими способами
-        if hasattr(driver.command_executor, '_url'):
-            executor_url = driver.command_executor._url
-        elif hasattr(driver.command_executor, 'url'):
-            executor_url = driver.command_executor.url
+        response = requests.get(video_url, timeout=30)
+        if response.status_code == 200 and len(response.content) > 10000:
+            allure.attach(
+                body=response.content,
+                name=f"video_{video_name}",
+                attachment_type=AttachmentType.MP4,
+                extension='.mp4'
+            )
         else:
-            executor_url = str(driver.command_executor)
-
-        selenoid_host = executor_url.replace('/wd/hub', '').split('@')[-1]
-        video_url = f"https://{selenoid_host}/video/{session_id}.mp4"
-
-        # Добавляем прямую ссылку на видео (для диагностики)
+            allure.attach(
+                f"Video not available: {video_url} (status {response.status_code})",
+                name="video_not_available",
+                attachment_type=AttachmentType.TEXT
+            )
+    except Exception as e:
         allure.attach(
-            body=video_url,
-            name="Video URL (for debugging)",
+            f"Failed to download video: {e}\nURL: {video_url}",
+            name="video_error",
             attachment_type=AttachmentType.TEXT
         )
-
-        html = f"""
-        <html>
-            <body>
-                <video width="100%" height="100%" controls autoplay>
-                    <source src="{video_url}" type="video/mp4">
-                </video>
-                <br>
-                <a href="{video_url}">Скачать видео</a>
-            </body>
-        </html>
-        """
-        allure.attach(body=html, name=name, attachment_type=AttachmentType.HTML)
-    except Exception as e:
-        logging.error(f"Failed to attach video: {e}")
