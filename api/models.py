@@ -1,6 +1,6 @@
-"""Pydantic модели для Demoblaze API"""
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Optional, Union
+"""Pydantic модели для Demoblaze API (Pydantic v1)"""
+from pydantic import BaseModel, Field, validator
+from typing import List, Optional
 
 
 # ========== Request Models ==========
@@ -21,8 +21,7 @@ class ByCatRequest(BaseModel):
     """Модель запроса для получения товаров по категории"""
     cat: str = Field(..., description="Категория товаров: phone, notebook, monitor")
 
-    @field_validator("cat")
-    @classmethod
+    @validator("cat")
     def validate_category(cls, v: str) -> str:
         allowed = ["phone", "notebook", "monitor"]
         if v not in allowed:
@@ -65,8 +64,8 @@ class SignupResponse(BaseModel):
     errorMessage: Optional[str] = None
 
     @classmethod
-    def model_validate(cls, obj):
-        """Кастомная валидация для пустой строки"""
+    def parse_obj(cls, obj):
+        """Кастомная валидация для пустой строки (Pydantic v1)"""
         if obj == "":
             return cls(errorMessage=None)
         if isinstance(obj, dict):

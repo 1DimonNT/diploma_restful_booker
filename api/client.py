@@ -1,4 +1,4 @@
-"""API клиент для Demoblaze с Pydantic моделями"""
+"""API клиент для Demoblaze с Pydantic моделями (v1)"""
 import allure
 import requests
 from typing import Optional, TypeVar, Generic, Type
@@ -31,10 +31,10 @@ class ApiClient:
         response_model: Optional[Type[T]] = None,
         expected_status: int = 200
     ) -> T:
-        """Выполняет запрос с валидацией через Pydantic"""
+        """Выполняет запрос с валидацией через Pydantic (v1)"""
         url = f"{self.base_url}{endpoint}"
 
-        json_data = request_model.model_dump(exclude_none=True) if request_model else None
+        json_data = request_model.dict(exclude_none=True) if request_model else None
 
         with allure.step(f"API {method} {endpoint}"):
             log.info(f"📤 {method} {url}")
@@ -57,7 +57,7 @@ class ApiClient:
             if response_model:
                 response_data = response.json()
                 allure.attach(str(response_data), "Response Body", allure.attachment_type.JSON)
-                return response_model.model_validate(response_data)
+                return response_model.parse_obj(response_data)
 
             return response
 
