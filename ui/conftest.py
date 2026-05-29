@@ -30,6 +30,10 @@ def _get_driver(request):
     if selenoid_url:
         log.info(f"🚀 Running on Selenoid: {selenoid_url}")
 
+        # Формируем URL с авторизацией
+        selenoid_host = selenoid_url.replace('https://', '').replace('http://', '').rstrip('/')
+        selenoid_full_url = f'http://{settings.SELENOID_USER}:{settings.SELENOID_PASSWORD}@{selenoid_host}'
+
         capabilities = {
             "browserName": browser_name,
             "browserVersion": settings.BROWSER_VERSION,
@@ -44,7 +48,7 @@ def _get_driver(request):
         for key, value in capabilities.items():
             options.set_capability(key, value)
 
-        driver = webdriver.Remote(command_executor=selenoid_url, options=options)
+        driver = webdriver.Remote(command_executor=selenoid_full_url, options=options)
     else:
         log.info("🖥️ Running locally")
         from selenium.webdriver.chrome.service import Service
