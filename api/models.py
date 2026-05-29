@@ -1,5 +1,5 @@
 """Pydantic модели для Demoblaze API (Pydantic v1)"""
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 from typing import List, Optional
 
 
@@ -41,8 +41,8 @@ class ProductResponse(BaseModel):
     id: int
     title: str
     price: int
-    desc: Optional[str] = None
-    category: Optional[str] = None
+    desc: Optional[str] = None  # type: ignore
+    category: Optional[str] = None  # type: ignore
 
 
 class ProductsResponse(BaseModel):
@@ -61,7 +61,7 @@ class ErrorResponse(BaseModel):
 
 class SignupResponse(BaseModel):
     """Модель ответа при регистрации (может быть строка или JSON)"""
-    errorMessage: Optional[str] = None
+    errorMessage: Optional[str] = None  # type: ignore
 
     @classmethod
     def parse_obj(cls, obj):
