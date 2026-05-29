@@ -7,14 +7,14 @@ from typing import List, Optional
 
 class SignupRequest(BaseModel):
     """Модель запроса на регистрацию"""
-    username: str = Field(..., min_length=3, max_length=50, description="Имя пользователя")
-    password: str = Field(..., min_length=4, max_length=50, description="Пароль")
+    username: str = Field(..., description="Имя пользователя")
+    password: str = Field(..., description="Пароль")
 
 
 class LoginRequest(BaseModel):
     """Модель запроса на авторизацию"""
-    username: str = Field(..., min_length=3, max_length=50, description="Имя пользователя")
-    password: str = Field(..., min_length=4, max_length=50, description="Пароль")
+    username: str = Field(..., description="Имя пользователя")
+    password: str = Field(..., description="Пароль")
 
 
 class ByCatRequest(BaseModel):
