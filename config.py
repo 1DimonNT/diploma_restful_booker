@@ -23,11 +23,10 @@ class Settings(BaseSettings):
     HOLD_BROWSER_OPEN: bool = False
 
     # ========== Selenoid ==========
-    SELENOID_URL: Optional[str] = None
-    SELENOID_USER: Optional[str] = None
-    SELENOID_PASSWORD: Optional[str] = None
-    SELENOID_VIDEO_URL: str = "https://ru.selenoid.autotests.cloud/video"
-
+    SELENOID_URL: str = os.getenv("SELENOID_URL", "")
+    SELENOID_USER: str = os.getenv("SELENOID_USER", "")
+    SELENOID_PASSWORD: str = os.getenv("SELENOID_PASSWORD", "")
+    SELENOID_VIDEO_URL: str = os.getenv("SELENOID_VIDEO_URL", "https://ru.selenoid.autotests.cloud/video")
     # ========== Mobile Settings ==========
     context: str = "local_emulator"
     browserstack_username: str = ""

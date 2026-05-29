@@ -2,7 +2,7 @@ pytest==8.2.1
 pytest-xdist==3.5.0
 selene==2.0.0rc9
 selenium==4.15.0
-webdriver-manager==4.0.1
+webdriver-manager==4.1.1
 requests==2.31.0
 pydantic==1.10.18
 python-dotenv==1.0.0
