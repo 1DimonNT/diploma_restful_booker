@@ -8,6 +8,8 @@ webdriver-manager==4.0.2
 requests==2.32.3
 pydantic==2.10.4
 pydantic-settings==2.7.0
+pydantic-core==2.27.2
 email-validator==2.2.0
 python-dotenv==1.0.1
 loguru==0.7.3
+Appium-Python-Client==4.0.0

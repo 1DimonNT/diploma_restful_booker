@@ -1,8 +1,8 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-WORKDIR /workspace
+WORKDIR /app
 
-# Установка зависимостей системы
+# Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -10,14 +10,20 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Установка Chrome для Selenoid
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-    && apt-get update && apt-get install -y google-chrome-stable
+# Установка Allure командной строки
+RUN wget https://github.com/allure-framework/allure2/releases/download/2.24.1/allure-2.24.1.tgz && \
+    tar -xzf allure-2.24.1.tgz -C /opt/ && \
+    ln -s /opt/allure-2.24.1/bin/allure /usr/local/bin/allure && \
+    rm allure-2.24.1.tgz
 
+# Копирование зависимостей
 COPY requirements.txt .
+
+# Установка Python зависимостей
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Копирование всего проекта
 COPY . .
 
-CMD ["pytest", "api/tests/", "ui/tests/", "--alluredir=allure-results", "-v"]
+# Команда по умолчанию
+CMD ["pytest", "api/tests/", "ui/tests/", "mobile/tests/", "-v", "--alluredir=allure-results"]
