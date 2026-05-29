@@ -57,7 +57,7 @@ def add_video(session_id, login=None, access_key=None):
             auth = (login, access_key)
         else:
             # Пробуем взять из настроек
-            from mobile.config import settings as mobile_settings
+            from config import settings as mobile_settings
             auth = (mobile_settings.browserstack_username, mobile_settings.browserstack_access_key)
 
         browserstack_session = requests.get(
