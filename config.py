@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
-from pydantic import BaseSettings
 from typing import Optional
+from pydantic import BaseSettings
 from dotenv import load_dotenv
 
 
@@ -29,30 +29,17 @@ class Settings(BaseSettings):
     SELENOID_VIDEO_URL: str = "https://ru.selenoid.autotests.cloud/video"
 
     # ========== Mobile Settings ==========
-    # Context (local_emulator, local_real, bstack)
     context: str = "local_emulator"
-
-    # BrowserStack credentials
     browserstack_username: str = ""
     browserstack_access_key: str = ""
     remote_url: str = "http://hub.browserstack.com/wd/hub"
-
-    # Platform capabilities
     platform_name: str = "android"
     platform_version: str = "13.0"
     device_name: str = "Samsung Galaxy S23 Ultra"
-
-    # For local real device
     udid: str = ""
-
-    # App configuration
     app_path: str = "./apps/wikipedia.apk"
     app_url: str = ""
-
-    # Mobile timeouts
     mobile_timeout: float = 45.0
-
-    # Browser management for mobile
     hold_mobile_browser_open: bool = False
     save_page_source_on_failure: bool = True
 
@@ -66,13 +53,10 @@ class Settings(BaseSettings):
         self._load_mobile_context()
 
     def _load_mobile_context(self):
-        """Load mobile configuration based on CONTEXT environment variable"""
-        # First, load credentials if they exist
         creds_file = Path(".env.credentials")
         if creds_file.exists():
             load_dotenv(creds_file, override=True)
 
-        # Then load context-specific config
         context = os.getenv("CONTEXT", self.context)
         context_file = Path(f".env.{context}")
 
@@ -80,7 +64,6 @@ class Settings(BaseSettings):
             load_dotenv(context_file, override=True)
             print(f"✅ Loaded mobile configuration from: {context_file}")
 
-        # Reload values from environment
         self.context = os.getenv("CONTEXT", self.context)
         self.browserstack_username = os.getenv("BROWSERSTACK_USERNAME", self.browserstack_username)
         self.browserstack_access_key = os.getenv("BROWSERSTACK_ACCESS_KEY", self.browserstack_access_key)
