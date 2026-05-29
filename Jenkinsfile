@@ -1,104 +1,75 @@
 pipeline {
-    agent any
+    agent { label 'python3-jenkins-agent-1' }
 
-    environment {
-        // Основные настройки
-        API_BASE_URL = 'https://api.demoblaze.com'
-        UI_BASE_URL = 'https://demoblaze.com'
-
-        // Selenoid настройки (типовые для QA.GURU)
-        SELENOID_URL = 'https://selenoid.autotests.cloud/wd/hub'
-
-        // BrowserStack настройки (введите свои)
-        BROWSERSTACK_USERNAME = credentials('browserstack-username')
-        BROWSERSTACK_ACCESS_KEY = credentials('browserstack-access-key')
+    parameters {
+        choice(name: 'TEST_TYPE', choices: ['all', 'api', 'ui', 'mobile'], description: 'Тип запускаемых тестов')
+        choice(name: 'CONTEXT', choices: ['bstack', 'local_emulator', 'local_real'], description: 'Контекст для мобильных тестов')
+        choice(name: 'PLATFORM', choices: ['android', 'ios'], description: 'Платформа для мобильных тестов')
+        string(name: 'BROWSERSTACK_USERNAME', defaultValue: '', description: 'BrowserStack Username')
+        string(name: 'BROWSERSTACK_ACCESS_KEY', defaultValue: '', description: 'BrowserStack Access Key')
     }
 
     stages {
-        stage('Checkout') {
+        stage('Setup') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
+                echo '===== Установка зависимостей ====='
                 sh '''
-                    echo "===== Установка зависимостей ====="
-                    pip3 install --upgrade pip
-                    pip3 install -r requirements.txt
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
                 '''
             }
         }
 
-        stage('Run API Tests') {
+        stage('API Tests') {
+            when { expression { params.TEST_TYPE == 'all' || params.TEST_TYPE == 'api' } }
             steps {
+                echo '===== Запуск API тестов ====='
                 sh '''
-                    echo "===== Запуск API тестов ====="
-                    pytest api/tests/ -v -m api --alluredir=allure-results/api
+                    . venv/bin/activate
+                    export API_BASE_URL="https://api.demoblaze.com"
+                    pytest api/tests/ -v --alluredir=allure-results
                 '''
-            }
-            post {
-                always {
-                    stash name: 'api-results', path: 'allure-results/api'
-                }
             }
         }
 
-        stage('Run UI Tests') {
+        stage('UI Tests') {
+            when { expression { params.TEST_TYPE == 'all' || params.TEST_TYPE == 'ui' } }
             steps {
+                echo '===== Запуск UI тестов ====='
                 sh '''
-                    echo "===== Запуск UI тестов на Selenoid ====="
-                    pytest ui/tests/ -v -m ui --alluredir=allure-results/ui
+                    . venv/bin/activate
+                    export UI_BASE_URL="https://demoblaze.com"
+                    pytest ui/tests/ -v --alluredir=allure-results
                 '''
-            }
-            post {
-                always {
-                    stash name: 'ui-results', path: 'allure-results/ui'
-                }
             }
         }
 
-        stage('Run Mobile Tests') {
+        stage('Mobile Tests') {
+            when { expression { params.TEST_TYPE == 'all' || params.TEST_TYPE == 'mobile' } }
             steps {
+                echo '===== Запуск мобильных тестов ====='
                 sh '''
-                    echo "===== Запуск мобильных тестов на BrowserStack ====="
-                    pytest mobile/tests/ -v -m mobile --alluredir=allure-results/mobile
+                    . venv/bin/activate
+                    export CONTEXT="${CONTEXT:-bstack}"
+                    export BROWSERSTACK_USERNAME="${BROWSERSTACK_USERNAME}"
+                    export BROWSERSTACK_ACCESS_KEY="${BROWSERSTACK_ACCESS_KEY}"
+                    pytest mobile/tests/ -v --context=$CONTEXT --platform=android --alluredir=allure-results
                 '''
-            }
-            post {
-                always {
-                    stash name: 'mobile-results', path: 'allure-results/mobile'
-                }
-            }
-        }
-
-        stage('Generate Allure Report') {
-            steps {
-                sh '''
-                    echo "===== Генерация Allure отчета ====="
-                    mkdir -p allure-results/all
-                    cp -r allure-results/*/* allure-results/all/ 2>/dev/null || true
-                '''
-            }
-            post {
-                always {
-                    allure includeProperties: false, jdk: '', results: [[path: 'allure-results/all']]
-                }
             }
         }
     }
 
     post {
+        always {
+            allure results: [[path: 'allure-results']]
+        }
         success {
-            sh '''
-                echo "✅ Все тесты успешно пройдены!"
-            '''
+            echo '✅ Все тесты прошли успешно!'
         }
         failure {
-            sh '''
-                echo "❌ Некоторые тесты упали!"
-            '''
+            echo '❌ Некоторые тесты упали. Проверьте Allure отчёт.'
         }
     }
 }
