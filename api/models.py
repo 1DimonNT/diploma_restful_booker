@@ -7,19 +7,19 @@ from typing import List, Optional
 
 class SignupRequest(BaseModel):
     """Модель запроса на регистрацию"""
-    username: str = Field(..., description="Имя пользователя")
-    password: str = Field(..., description="Пароль")
+    username: str
+    password: str
 
 
 class LoginRequest(BaseModel):
     """Модель запроса на авторизацию"""
-    username: str = Field(..., description="Имя пользователя")
-    password: str = Field(..., description="Пароль")
+    username: str
+    password: str
 
 
 class ByCatRequest(BaseModel):
     """Модель запроса для получения товаров по категории"""
-    cat: str = Field(..., description="Категория товаров: phone, notebook, monitor")
+    cat: str
 
     @validator("cat")
     def validate_category(cls, v: str) -> str:
@@ -31,23 +31,23 @@ class ByCatRequest(BaseModel):
 
 class ViewProductRequest(BaseModel):
     """Модель запроса для получения товара по ID"""
-    id: int = Field(..., ge=1, description="ID товара")
+    id: int
 
 
 # ========== Response Models ==========
 
 class ProductResponse(BaseModel):
     """Модель товара"""
-    id: int = Field(..., description="ID товара")
-    title: str = Field(..., description="Название товара")
-    price: int = Field(..., ge=0, description="Цена товара")
-    desc: Optional[str] = Field(None, description="Описание товара")
-    category: Optional[str] = Field(None, description="Категория товара")
+    id: int
+    title: str
+    price: int
+    desc: Optional[str] = None
+    category: Optional[str] = None
 
 
 class ProductsResponse(BaseModel):
     """Модель ответа со списком товаров"""
-    Items: List[ProductResponse] = Field(default_factory=list, description="Список товаров")
+    Items: List[ProductResponse] = []
 
     @property
     def count(self) -> int:
@@ -56,7 +56,7 @@ class ProductsResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     """Модель ответа с ошибкой"""
-    errorMessage: str = Field(..., description="Сообщение об ошибке")
+    errorMessage: str
 
 
 class SignupResponse(BaseModel):
