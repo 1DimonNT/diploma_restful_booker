@@ -59,3 +59,7 @@ diploma_restful_booker_structure.txt
 fff.py
 ".env" 
 ".env.credentials" 
+".env.bstack" 
+".env.credentials" 
+".env.local_emulator" 
+".env.local_real" 
