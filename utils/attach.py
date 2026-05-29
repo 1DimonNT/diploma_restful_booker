@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import allure
 import requests
-import time
 from allure_commons.types import AttachmentType
 from config import settings
 
@@ -49,20 +50,35 @@ def add_page_source(driver, name='page_source'):
         allure.attach(f"Failed to get page source: {e}", name, AttachmentType.TEXT)
 
 
-def add_video(session_id, login=None, access_key=None):
+def add_video(driver):
+    """Add Selenoid video recording to Allure report"""
+    try:
+        session_id = driver.session_id
+        video_url = f"{settings.SELENOID_VIDEO_URL}/{session_id}.mp4"
+
+        allure.attach(
+            '<html><body>'
+            '<video width="100%" height="100%" controls autoplay>'
+            f'<source src="{video_url}" type="video/mp4">'
+            '</video>'
+            '</body></html>',
+            name="Video Recording",
+            attachment_type=allure.attachment_type.HTML,
+        )
+    except Exception as e:
+        allure.attach(
+            f"Failed to get video: {str(e)}",
+            name="Video Error",
+            attachment_type=allure.attachment_type.TEXT
+        )
+
+
+def add_browserstack_video(session_id, login, access_key):
     """Add BrowserStack video recording to Allure report"""
     try:
-        # Если переданы логин и пароль - используем их из параметров
-        if login and access_key:
-            auth = (login, access_key)
-        else:
-            # Пробуем взять из настроек
-            from config import settings as mobile_settings
-            auth = (mobile_settings.browserstack_username, mobile_settings.browserstack_access_key)
-
         browserstack_session = requests.get(
             url=f"https://api.browserstack.com/app-automate/sessions/{session_id}.json",
-            auth=auth,
+            auth=(login, access_key),
             timeout=30
         ).json()
 

@@ -87,8 +87,7 @@ def browser_management(request):
     add_console_logs(browser.config.driver)
 
     if settings.SELENOID_URL:
-        add_video(browser.config.driver, name=request.node.name)
-
+        add_video(browser.config.driver)
     if not settings.HOLD_BROWSER_OPEN:
         log.info("🔒 Closing browser...")
         browser.quit()
