@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 from typing import Optional
 from dotenv import load_dotenv
 
