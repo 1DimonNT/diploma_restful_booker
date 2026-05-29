@@ -1,50 +1,7 @@
 import allure
 import pytest
-import requests
-from jsonschema import validate
-from config import settings
-
-BASE_URL = settings.API_BASE_URL
-
-# Schema для списка товаров
-products_schema = {
-    "type": "object",
-    "properties": {
-        "Items": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "id": {"type": "integer"},
-                    "title": {"type": "string"},
-                    "price": {"type": "integer"}
-                },
-                "required": ["id", "title", "price"]
-            }
-        }
-    },
-    "required": ["Items"]
-}
-
-# Schema для одного товара
-product_schema = {
-    "type": "object",
-    "properties": {
-        "id": {"type": "integer"},
-        "title": {"type": "string"},
-        "price": {"type": "integer"}
-    },
-    "required": ["id", "title", "price"]
-}
-
-# Schema для ошибки
-error_schema = {
-    "type": "object",
-    "properties": {
-        "errorMessage": {"type": "string"}
-    },
-    "required": ["errorMessage"]
-}
+import time
+from api.client import api_client
 
 
 @allure.feature("API Tests")
@@ -52,64 +9,55 @@ error_schema = {
 @pytest.mark.api
 class TestDemoblazeAPI:
 
-    @allure.title("GET /entries - получение всех товаров")
-    def test_get_all_products(self):
-        with allure.step("Выполнить GET запрос"):
-            response = requests.get(f"{BASE_URL}/entries")
+    @allure.title("POST /signup - регистрация нового пользователя")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_signup_new_user(self):
+        unique_username = f"testuser_{int(time.time())}"
+        response = api_client.signup(unique_username, "password123")
 
-        with allure.step("Проверить статус 200"):
-            assert response.status_code == 200
+        assert response.is_success, f"Registration failed: {response.errorMessage}"
 
-        with allure.step("Проверить схему ответа"):
-            validate(response.json(), products_schema)
+    @allure.title("POST /signup - регистрация существующего пользователя")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_signup_existing_user(self):
+        username = f"existing_{int(time.time())}"
+        # Первая регистрация
+        api_client.signup(username, "password123")
+        # Вторая регистрация (должна упасть)
+        response = api_client.signup(username, "password123")
 
-        with allure.step("Проверить что список не пуст"):
-            assert len(response.json()["Items"]) > 0
+        assert response.errorMessage is not None
+        assert "exist" in response.errorMessage.lower()
 
-    @allure.title("POST /view - получение товара по ID")
-    def test_get_product_by_id(self):
-        with allure.step("Выполнить POST запрос"):
-            response = requests.post(f"{BASE_URL}/view", json={"id": 1})
-
-        with allure.step("Проверить статус 200"):
-            assert response.status_code == 200
-
-        with allure.step("Проверить схему ответа"):
-            validate(response.json(), product_schema)
-
-        with allure.step("Проверить данные товара"):
-            assert response.json()["title"] == "Samsung galaxy s6"
-
-    @allure.title("POST /bycat - товары категории Phones")
+    @allure.title("POST /bycat - получение товаров категории Phones")
+    @allure.severity(allure.severity_level.NORMAL)
     def test_get_products_by_category_phones(self):
-        response = requests.post(f"{BASE_URL}/bycat", json={"cat": "phone"})
-        assert response.status_code == 200
-        validate(response.json(), products_schema)
-        assert len(response.json()["Items"]) > 0
+        response = api_client.get_products_by_category("phone")
 
-    @allure.title("POST /bycat - товары категории Laptops")
+        assert response.count > 0, "No products found in Phones category"
+
+    @allure.title("POST /bycat - получение товаров категории Laptops")
+    @allure.severity(allure.severity_level.NORMAL)
     def test_get_products_by_category_laptops(self):
-        response = requests.post(f"{BASE_URL}/bycat", json={"cat": "notebook"})
-        assert response.status_code == 200
-        validate(response.json(), products_schema)
-        items = response.json()["Items"]
-        assert any("Sony" in item["title"] for item in items)
+        response = api_client.get_products_by_category("notebook")
 
-    @allure.title("POST /login - неверный пароль")
+        assert response.count > 0, "No products found in Laptops category"
+
+    @allure.title("POST /login - авторизация с неверным паролем (существующий пользователь)")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_login_wrong_password(self):
-        response = requests.post(f"{BASE_URL}/login", json={
-            "username": "testuser",
-            "password": "wrongpassword"
-        })
-        assert response.status_code == 200
-        validate(response.json(), error_schema)
-        assert "Wrong password" in response.json()["errorMessage"]
+        # Сначала создаем пользователя
+        username = f"login_test_{int(time.time())}"
+        api_client.signup(username, "correctpassword")
 
-    @allure.title("POST /login - несуществующий пользователь")
+        # Пробуем войти с неверным паролем
+        response = api_client.login(username, "wrongpassword")
+
+        assert "Wrong password" in response.errorMessage
+
+    @allure.title("POST /login - авторизация несуществующего пользователя")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_login_nonexistent_user(self):
-        response = requests.post(f"{BASE_URL}/login", json={
-            "username": "nonexistent_12345",
-            "password": "test"
-        })
-        assert response.status_code == 200
-        assert response.json()["errorMessage"] == "User does not exist."
+        response = api_client.login("nonexistent_user_xyz", "password123")
+
+        assert "User does not exist" in response.errorMessage

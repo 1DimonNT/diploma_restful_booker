@@ -1,21 +1,109 @@
 import os
+from pathlib import Path
+from pydantic_settings import BaseSettings
+from typing import Optional
 from dotenv import load_dotenv
 
-load_dotenv()
 
+class Settings(BaseSettings):
+    """Настройки проекта через Pydantic"""
 
-class Settings:
-    API_BASE_URL = os.getenv("API_BASE_URL", "https://api.demoblaze.com")
-    UI_BASE_URL = os.getenv("UI_BASE_URL", "https://demoblaze.com")
-    UI_TIMEOUT = int(os.getenv("UI_TIMEOUT", 10))
-    BROWSER = os.getenv("BROWSER", "chrome")
-    BROWSER_VERSION = os.getenv("BROWSER_VERSION", "128.0")
-    WINDOW_WIDTH = int(os.getenv("WINDOW_WIDTH", 1920))
-    WINDOW_HEIGHT = int(os.getenv("WINDOW_HEIGHT", 1080))
-    SELENOID_URL = os.getenv("SELENOID_URL")
-    SELENOID_USER = os.getenv("SELENOID_USER")
-    SELENOID_PASSWORD = os.getenv("SELENOID_PASSWORD")
-    HOLD_BROWSER_OPEN = os.getenv("HOLD_BROWSER_OPEN", "false").lower() == "true"
+    # ========== API Settings ==========
+    API_BASE_URL: str = "https://api.demoblaze.com"
+    API_TIMEOUT: int = 30
+
+    # ========== UI Settings ==========
+    UI_BASE_URL: str = "https://demoblaze.com"
+    UI_TIMEOUT: int = 10
+    BROWSER: str = "chrome"
+    BROWSER_VERSION: str = "128.0"
+    WINDOW_WIDTH: int = 1920
+    WINDOW_HEIGHT: int = 1080
+    HEADLESS: bool = False
+    HOLD_BROWSER_OPEN: bool = False
+
+    # ========== Selenoid ==========
+    SELENOID_URL: Optional[str] = None
+    SELENOID_USER: Optional[str] = None
+    SELENOID_PASSWORD: Optional[str] = None
+    SELENOID_VIDEO_URL: str = "https://ru.selenoid.autotests.cloud/video"
+
+    # ========== Mobile Settings ==========
+    # Context (local_emulator, local_real, bstack)
+    context: str = "local_emulator"
+
+    # BrowserStack credentials
+    browserstack_username: str = ""
+    browserstack_access_key: str = ""
+    remote_url: str = "http://hub.browserstack.com/wd/hub"
+
+    # Platform capabilities
+    platform_name: str = "android"
+    platform_version: str = "13.0"
+    device_name: str = "Samsung Galaxy S23 Ultra"
+
+    # For local real device
+    udid: str = ""
+
+    # App configuration
+    app_path: str = "./apps/wikipedia.apk"
+    app_url: str = ""
+
+    # Mobile timeouts
+    mobile_timeout: float = 45.0
+
+    # Browser management for mobile
+    hold_mobile_browser_open: bool = False
+    save_page_source_on_failure: bool = True
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "ignore"
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._load_mobile_context()
+
+    def _load_mobile_context(self):
+        """Load mobile configuration based on CONTEXT environment variable"""
+        # First, load credentials if they exist
+        creds_file = Path(".env.credentials")
+        if creds_file.exists():
+            load_dotenv(creds_file, override=True)
+
+        # Then load context-specific config
+        context = os.getenv("CONTEXT", self.context)
+        context_file = Path(f".env.{context}")
+
+        if context_file.exists():
+            load_dotenv(context_file, override=True)
+            print(f"✅ Loaded mobile configuration from: {context_file}")
+
+        # Reload values from environment
+        self.context = os.getenv("CONTEXT", self.context)
+        self.browserstack_username = os.getenv("BROWSERSTACK_USERNAME", self.browserstack_username)
+        self.browserstack_access_key = os.getenv("BROWSERSTACK_ACCESS_KEY", self.browserstack_access_key)
+        self.remote_url = os.getenv("REMOTE_URL", self.remote_url)
+        self.platform_name = os.getenv("PLATFORM_NAME", self.platform_name)
+        self.platform_version = os.getenv("PLATFORM_VERSION", self.platform_version)
+        self.device_name = os.getenv("DEVICE_NAME", self.device_name)
+        self.udid = os.getenv("UDID", self.udid)
+        self.app_path = os.getenv("APP_PATH", self.app_path)
+        self.app_url = os.getenv("APP_URL", self.app_url)
+        self.mobile_timeout = float(os.getenv("MOBILE_TIMEOUT", self.mobile_timeout))
+
+    @property
+    def is_bstack(self) -> bool:
+        return self.context == "bstack"
+
+    @property
+    def is_local_emulator(self) -> bool:
+        return self.context == "local_emulator"
+
+    @property
+    def is_local_real(self) -> bool:
+        return self.context == "local_real"
 
 
 settings = Settings()

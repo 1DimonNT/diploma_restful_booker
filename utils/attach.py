@@ -7,14 +7,27 @@ from config import settings
 
 def add_screenshot(driver, name='screenshot'):
     """Добавляет скриншот в Allure отчет"""
-    png = driver.get_screenshot_as_png()
-    allure.attach(body=png, name=name, attachment_type=AttachmentType.PNG, extension='.png')
+    try:
+        # Для Selene browser
+        if hasattr(driver, 'driver'):
+            png = driver.driver.get_screenshot_as_png()
+        else:
+            png = driver.get_screenshot_as_png()
+        allure.attach(body=png, name=name, attachment_type=AttachmentType.PNG, extension='.png')
+    except Exception as e:
+        allure.attach(f"Failed to take screenshot: {e}", name="screenshot_error", attachment_type=AttachmentType.TEXT)
 
 
 def add_console_logs(driver, name='browser_logs'):
     """Добавляет логи браузера в Allure отчет"""
     try:
-        logs = driver.get_log("browser")
+        # Для Selene browser
+        if hasattr(driver, 'driver'):
+            web_driver = driver.driver
+        else:
+            web_driver = driver
+
+        logs = web_driver.get_log("browser")
         if logs:
             log_text = "\n".join([f"[{log['level']}] {log['message']}" for log in logs])
             allure.attach(log_text, name, AttachmentType.TEXT, '.log')
@@ -25,38 +38,48 @@ def add_console_logs(driver, name='browser_logs'):
 
 
 def add_page_source(driver, name='page_source'):
-    """Добавляет HTML страницы в Allure отчет"""
-    html = driver.page_source
-    allure.attach(html, name, AttachmentType.HTML, '.html')
-
-
-def add_video(driver, name=None):
-    """Добавляет видео из Selenoid в отчет Allure"""
-    time.sleep(3)
-
-    video_name = name if name else driver.session_id
-
-    selenoid_video_url = getattr(settings, 'SELENOID_VIDEO_URL', 'https://ru.selenoid.autotests.cloud/video')
-    video_url = f"{selenoid_video_url}/{video_name}.mp4"
-
+    """Добавляет HTML/XML страницы в Allure отчет"""
     try:
-        response = requests.get(video_url, timeout=30)
-        if response.status_code == 200 and len(response.content) > 10000:
-            allure.attach(
-                body=response.content,
-                name=f"video_{video_name}",
-                attachment_type=AttachmentType.MP4,
-                extension='.mp4'
-            )
+        if hasattr(driver, 'driver'):
+            source = driver.driver.page_source
         else:
-            allure.attach(
-                f"Video not available: {video_url} (status {response.status_code})",
-                name="video_not_available",
-                attachment_type=AttachmentType.TEXT
-            )
+            source = driver.page_source
+        allure.attach(source, name, AttachmentType.XML, '.xml')
+    except Exception as e:
+        allure.attach(f"Failed to get page source: {e}", name, AttachmentType.TEXT)
+
+
+def add_video(session_id, login=None, access_key=None):
+    """Add BrowserStack video recording to Allure report"""
+    try:
+        # Если переданы логин и пароль - используем их из параметров
+        if login and access_key:
+            auth = (login, access_key)
+        else:
+            # Пробуем взять из настроек
+            from mobile.config import settings as mobile_settings
+            auth = (mobile_settings.browserstack_username, mobile_settings.browserstack_access_key)
+
+        browserstack_session = requests.get(
+            url=f"https://api.browserstack.com/app-automate/sessions/{session_id}.json",
+            auth=auth,
+            timeout=30
+        ).json()
+
+        video_url = browserstack_session["automation_session"]["video_url"]
+
+        allure.attach(
+            '<html><body>'
+            '<video width="100%" height="100%" controls autoplay>'
+            f'<source src="{video_url}" type="video/mp4">'
+            '</video>'
+            '</body></html>',
+            name="Video Recording",
+            attachment_type=allure.attachment_type.HTML,
+        )
     except Exception as e:
         allure.attach(
-            f"Failed to download video: {e}\nURL: {video_url}",
-            name="video_error",
-            attachment_type=AttachmentType.TEXT
+            f"Failed to get video: {str(e)}",
+            name="Video Error",
+            attachment_type=allure.attachment_type.TEXT
         )

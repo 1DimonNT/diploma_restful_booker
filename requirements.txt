@@ -6,6 +6,8 @@ selene==2.0.0rc10
 selenium==4.27.1
 webdriver-manager==4.0.2
 requests==2.32.3
-jsonschema==4.23.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+email-validator==2.2.0
 python-dotenv==1.0.1
 loguru==0.7.3
