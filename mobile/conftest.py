@@ -5,9 +5,9 @@ import allure_commons
 import pytest
 from appium import webdriver
 from selene import browser, support
-from selenium.webdriver.remote.remote_connection import RemoteConnection
+from appium.options.android import UiAutomator2Options
 
-import mobile.config as config
+from config import settings
 from utils import attach
 
 
@@ -45,33 +45,66 @@ def platform(request):
     return request.config.getoption("--platform")
 
 
+def get_driver_options():
+    """Configure Android driver options based on settings"""
+    options = UiAutomator2Options()
+
+    capabilities = {
+        "platformName": settings.platform_name,
+        "platformVersion": settings.platform_version,
+        "deviceName": settings.device_name,
+        "appWaitActivity": "org.wikipedia.*",
+        "automationName": "UiAutomator2",
+        "noReset": False,
+        "fullReset": False,
+    }
+
+    # Add app URL for BrowserStack
+    if settings.is_bstack and settings.app_url:
+        capabilities["app"] = settings.app_url
+        capabilities["bstack:options"] = {
+            "userName": settings.browserstack_username,
+            "accessKey": settings.browserstack_access_key,
+            "projectName": "Mobile QA Automation Project",
+            "buildName": f"Wikipedia {settings.context.capitalize()} Tests",
+            "sessionName": f"Test on {settings.device_name} ({settings.context})",
+            "local": "false",
+            "debug": "true",
+            "networkLogs": "true",
+            "consoleLogs": "info",
+        }
+
+    options.load_capabilities(capabilities)
+    return options
+
+
 @pytest.fixture(scope="function", autouse=True)
 def mobile_management(request, platform):
     """Main fixture for mobile driver management"""
 
-    # Override context if provided via command line
+    # Сначала переопределяем context в переменной окружения
     context = request.config.getoption("--context")
     if context:
         import os
         os.environ["CONTEXT"] = context
-        # Reload settings with new context
-        config.settings._load_context_config()
 
-    # Get driver options based on platform
-    driver_options = config.get_driver_options(platform)
+    # Затем перезагружаем конфиг (УЖЕ ПОСЛЕ установки переменной)
+    settings._load_mobile_context()
+
+    # Get driver options
+    driver_options = get_driver_options()
 
     # Determine remote URL
-    if config.settings.is_bstack:
-        remote_url = config.settings.remote_url
-        print(f"\n🚀 Running on BrowserStack: {config.settings.device_name}")
+    if settings.is_bstack:
+        remote_url = settings.remote_url
+        print(f"\n🚀 Running on BrowserStack: {settings.device_name}")
     else:
-        # Local execution (emulator or real device)
         remote_url = "http://localhost:4723/wd/hub"
-        print(f"\n🚀 Running locally: {config.settings.device_name} ({config.settings.context})")
+        print(f"\n🚀 Running locally: {settings.device_name} ({settings.context})")
 
     # Configure Selene
     browser.config.driver = webdriver.Remote(remote_url, options=driver_options)
-    browser.config.timeout = config.settings.timeout
+    browser.config.timeout = settings.mobile_timeout
 
     # Enable Allure steps in Selene logs
     browser.config._wait_decorator = support._logging.wait_with(
@@ -82,7 +115,7 @@ def mobile_management(request, platform):
     session_id = browser.driver.session_id
     print(f"📱 Session ID: {session_id}")
 
-    if config.settings.is_bstack:
+    if settings.is_bstack:
         session_url = f"https://app-automate.browserstack.com/dashboard/v2/builds/sessions/{session_id}"
         print(f"🔗 BrowserStack session: {session_url}")
         allure.attach(
@@ -94,20 +127,16 @@ def mobile_management(request, platform):
     yield
 
     # Teardown
-    if not config.settings.hold_browser_open:
+    if not settings.hold_mobile_browser_open:
         print("\n📱 Closing driver session...")
 
         # Attach artifacts only on failure
         if hasattr(request, "node") and request.node.rep_call and request.node.rep_call.failed:
             attach.add_screenshot(browser)
-            attach.add_xml(browser)
+            attach.add_page_source(browser)
 
-            if config.settings.is_bstack:
-                attach.add_video(
-                    session_id,
-                    config.settings.browserstack_username,
-                    config.settings.browserstack_access_key
-                )
+            if settings.is_bstack:
+                attach.add_video(session_id, settings.browserstack_username, settings.browserstack_access_key)
 
         browser.quit()
         print("✅ Driver session closed")
