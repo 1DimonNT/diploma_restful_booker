@@ -21,7 +21,7 @@ class ByCatRequest(BaseModel):
     """Модель запроса для получения товаров по категории"""
     cat: str
 
-    @validator("cat")
+    @validator("cat", check_fields=False)
     def validate_category(cls, v: str) -> str:
         allowed = ["phone", "notebook", "monitor"]
         if v not in allowed:
