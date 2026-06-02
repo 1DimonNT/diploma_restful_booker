@@ -47,6 +47,8 @@ class Settings:
         self.WINDOW_HEIGHT = int(os.getenv("WINDOW_HEIGHT", "1080"))
         self.HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"
         self.HOLD_BROWSER_OPEN = os.getenv("HOLD_BROWSER_OPEN", "false").lower() == "true"
+
+        # Selenoid настройки
         self.SELENOID_URL = os.getenv("SELENOID_URL")
         self.SELENOID_USER = os.getenv("SELENOID_USER")
         self.SELENOID_PASSWORD = os.getenv("SELENOID_PASSWORD")
