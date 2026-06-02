@@ -37,15 +37,16 @@ def _get_driver(request):
             "selenoid:options": {
                 "enableVNC": True,
                 "enableVideo": True,
-                "videoName": f"{request.node.name}.mp4",
-                "videoScreenSize": f"{settings.WINDOW_WIDTH}x{settings.WINDOW_HEIGHT}"
+                "videoName": f"{request.node.name}_{request.node.nodeid}.mp4",
+                "videoScreenSize": f"{settings.WINDOW_WIDTH}x{settings.WINDOW_HEIGHT}",
+                "videoFrameRate": 24,  # <--- ДОБАВИТЬ ЭТО
+                "sessionTimeout": "10m"  # <--- И ЭТО
             }
         }
 
         for key, value in capabilities.items():
             options.set_capability(key, value)
 
-        # Убираем лишний /wd/hub, если он есть
         command_executor = selenoid_url.rstrip('/')
         if not command_executor.endswith('/wd/hub'):
             command_executor += '/wd/hub'
