@@ -56,7 +56,8 @@ def add_video(driver):
     """Add Selenoid video recording to Allure report"""
     try:
         session_id = driver.session_id
-        video_url = f"{settings.SELENOID_VIDEO_URL}/{session_id}.mp4"
+        # Selenoid video URL формируется так
+        video_url = f"http://ru.selenoid.autotests.cloud/video/{session_id}.mp4"
 
         allure.attach(
             '<html><body>'

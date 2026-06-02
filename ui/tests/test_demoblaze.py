@@ -49,10 +49,10 @@ class TestDemoblaze:
         phones_link = browser.element("//a[contains(text(), 'Phones')]")
         phones_link.should(be.visible).click()
 
-        # Ждем загрузки товаров и кликаем по первому товару
-        WebDriverWait(browser.driver, 15).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, ".card-title a"))
-        )
+        # Ждем загрузки товаров
+        time.sleep(2)
+
+        # Находим первый товар заново после клика по категории
         first_product = browser.element(".card-title a")
         first_product.should(be.visible).click()
 
@@ -98,10 +98,9 @@ class TestDemoblaze:
         phones_link = browser.element("//a[contains(text(), 'Phones')]")
         phones_link.should(be.visible).click()
 
-        # Ждем загрузки и кликаем по первому товару
-        WebDriverWait(browser.driver, 15).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, ".card-title a"))
-        )
+        time.sleep(2)
+
+        # Находим первый товар заново
         first_product = browser.element(".card-title a")
         first_product.should(be.visible).click()
 
