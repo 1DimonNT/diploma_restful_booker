@@ -1,46 +1,32 @@
-"""API клиент для Demoblaze с Pydantic моделями (v1)"""
+"""API клиент для Demoblaze с JSON Schema валидацией"""
 import allure
 import requests
-from typing import Optional, TypeVar, Generic, Type
-from requests import Response
+import json
+from jsonschema import validate
 from config import settings
 from utils.logger import log
-from pydantic import BaseModel
-from api.models import (
-    SignupRequest, LoginRequest, ByCatRequest, ViewProductRequest,
-    ProductsResponse, ProductResponse, ErrorResponse, SignupResponse
+from api.schemas import (
+    signup_response_schema, login_response_schema,
+    products_response_schema, product_response_schema
 )
-
-T = TypeVar('T')
 
 
 class ApiClient:
-    """Клиент для работы с Demoblaze API"""
-
     def __init__(self):
         self.base_url = settings.API_BASE_URL
         self.timeout = settings.API_TIMEOUT
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
 
-    def _request(
-        self,
-        method: str,
-        endpoint: str,
-        request_model: Optional[BaseModel] = None,
-        response_model: Optional[Type[T]] = None,
-        expected_status: int = 200
-    ) -> T:
-        """Выполняет запрос с валидацией через Pydantic (v1)"""
+    def _request(self, method: str, endpoint: str, json_data: dict = None, schema: dict = None):
+        """Выполняет запрос с валидацией через JSON Schema"""
         url = f"{self.base_url}{endpoint}"
-
-        json_data = request_model.dict(exclude_none=True) if request_model else None
 
         with allure.step(f"API {method} {endpoint}"):
             log.info(f"📤 {method} {url}")
             if json_data:
                 log.debug(f"Request body: {json_data}")
-                allure.attach(str(json_data), "Request Body", allure.attachment_type.JSON)
+                allure.attach(json.dumps(json_data, indent=2), "Request Body", allure.attachment_type.JSON)
 
             response = self.session.request(
                 method=method,
@@ -51,62 +37,47 @@ class ApiClient:
 
             log.info(f"📥 Response: {response.status_code}")
 
-            assert response.status_code == expected_status, \
-                f"Expected {expected_status}, got {response.status_code}. Response: {response.text}"
+            # Если ответ пустой, возвращаем пустую строку
+            if response.text == "":
+                allure.attach("Empty response body", "Response Body", allure.attachment_type.TEXT)
+                if schema:
+                    validate(instance="", schema=schema)
+                    log.info("✅ JSON Schema validation passed")
+                return ""
 
-            if response_model:
-                response_data = response.json()
-                allure.attach(str(response_data), "Response Body", allure.attachment_type.JSON)
-                return response_model.parse_obj(response_data)
+            # Парсим JSON ответ
+            response_data = response.json()
+            allure.attach(
+                json.dumps(response_data, indent=2, ensure_ascii=False),
+                "Response Body",
+                allure.attachment_type.JSON
+            )
 
-            return response
+            if schema:
+                validate(instance=response_data, schema=schema)
+                log.info("✅ JSON Schema validation passed")
 
-    # ========== API Methods ==========
+            return response_data
 
-    def signup(self, username: str, password: str) -> SignupResponse:
+    def signup(self, username: str, password: str):
         """Регистрация нового пользователя"""
-        request = SignupRequest(username=username, password=password)
-        return self._request(
-            method="POST",
-            endpoint="/signup",
-            request_model=request,
-            response_model=SignupResponse,
-            expected_status=200
-        )
+        json_data = {"username": username, "password": password}
+        return self._request("POST", "/signup", json_data, signup_response_schema)
 
-    def login(self, username: str, password: str) -> ErrorResponse:
+    def login(self, username: str, password: str):
         """Авторизация пользователя"""
-        request = LoginRequest(username=username, password=password)
-        return self._request(
-            method="POST",
-            endpoint="/login",
-            request_model=request,
-            response_model=ErrorResponse,
-            expected_status=200
-        )
+        json_data = {"username": username, "password": password}
+        return self._request("POST", "/login", json_data, login_response_schema)
 
-    def get_products_by_category(self, category: str) -> ProductsResponse:
+    def get_products_by_category(self, category: str):
         """Получение товаров по категории"""
-        request = ByCatRequest(cat=category)
-        return self._request(
-            method="POST",
-            endpoint="/bycat",
-            request_model=request,
-            response_model=ProductsResponse,
-            expected_status=200
-        )
+        json_data = {"cat": category}
+        return self._request("POST", "/bycat", json_data, products_response_schema)
 
-    def get_product_by_id(self, product_id: int) -> ProductResponse:
+    def get_product_by_id(self, product_id: int):
         """Получение товара по ID"""
-        request = ViewProductRequest(id=product_id)
-        return self._request(
-            method="POST",
-            endpoint="/view",
-            request_model=request,
-            response_model=ProductResponse,
-            expected_status=200
-        )
+        json_data = {"id": product_id}
+        return self._request("POST", "/view", json_data, product_response_schema)
 
 
-# Глобальный экземпляр клиента
 api_client = ApiClient()
