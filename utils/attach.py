@@ -62,25 +62,15 @@ def add_video(driver):
     """Add Selenoid video recording to Allure report"""
     try:
         session_id = driver.session_id
-        # Selenoid video URL
         video_url = f"http://ru.selenoid.autotests.cloud/video/{session_id}.mp4"
 
         allure.attach(
-            '<html><body>'
-            '<video width="100%" height="100%" controls autoplay>'
-            f'<source src="{video_url}" type="video/mp4">'
-            'Your browser does not support the video tag.'
-            '</video>'
-            '</body></html>',
+            f'<video width="100%" height="100%" controls autoplay><source src="{video_url}" type="video/mp4"></video>',
             name="Video Recording",
             attachment_type=allure.attachment_type.HTML,
         )
     except Exception as e:
-        allure.attach(
-            f"Failed to get video: {str(e)}",
-            name="Video Error",
-            attachment_type=allure.attachment_type.TEXT
-        )
+        allure.attach(str(e), name="Video Error", attachment_type=allure.attachment_type.TEXT)
 
 
 def add_browserstack_video(session_id, login, access_key):
