@@ -3,6 +3,7 @@ from __future__ import annotations
 import allure
 import re
 import requests
+import time
 from allure_commons.types import AttachmentType
 from config import settings
 
@@ -10,7 +11,6 @@ from config import settings
 def add_screenshot(driver, name='screenshot'):
     """Добавляет скриншот в Allure отчет"""
     try:
-        # Для Selene browser
         if hasattr(driver, 'driver'):
             png = driver.driver.get_screenshot_as_png()
         else:
@@ -25,7 +25,6 @@ def add_screenshot(driver, name='screenshot'):
 def add_console_logs(driver, name='browser_logs'):
     """Добавляет логи браузера в Allure отчет"""
     try:
-        # Для Selene browser
         if hasattr(driver, 'driver'):
             web_driver = driver.driver
         else:
@@ -51,57 +50,78 @@ def add_page_source(driver, name='page_source'):
         else:
             source = driver.page_source
 
-        # Экранируем проблемные символы для XML
-        source = source.replace('&', '&amp;')
-
-        # Исправляем незакрытые теги link
-        source = re.sub(r'<link\s+([^>]*?)(?<!/)>', r'<link \1/>', source)
-
-        # Исправляем незакрытые теги meta
-        source = re.sub(r'<meta\s+([^>]*?)(?<!/)>', r'<meta \1/>', source)
-
-        # Исправляем незакрытые теги img (для полноты)
-        source = re.sub(r'<img\s+([^>]*?)(?<!/)>', r'<img \1/>', source)
-
-        # Исправляем незакрытые теги input
-        source = re.sub(r'<input\s+([^>]*?)(?<!/)>', r'<input \1/>', source)
-
-        # Исправляем незакрытые теги br
-        source = re.sub(r'<br\s*>', r'<br/>', source)
-        source = re.sub(r'<br\s+>', r'<br/>', source)
-
-        # Исправляем незакрытые теги hr
-        source = re.sub(r'<hr\s*>', r'<hr/>', source)
-        source = re.sub(r'<hr\s+>', r'<hr/>', source)
-
-        allure.attach(source, name, AttachmentType.XML, '.xml')
+        allure.attach(source, name, AttachmentType.HTML, '.html')
         print("✅ Page source добавлен в отчет")
     except Exception as e:
         allure.attach(f"Failed to get page source: {e}", name, AttachmentType.TEXT)
         print(f"❌ Ошибка при добавлении page source: {e}")
 
 
-def add_video(driver):
-    """Add Selenoid video recording to Allure report"""
+def add_video(driver, test_name=None):
+    """Add Selenoid video recording to Allure report (как BINARY MP4)"""
+    time.sleep(3)  # Ждем, пока видео сгенерируется
+
+    # Пробуем найти видео по имени теста
+    video_name = test_name if test_name else driver.session_id
+
+    # Формируем URL для видео
+    video_url = f"https://ru.selenoid.autotests.cloud/video/{video_name}.mp4"
+
+    # Альтернативный URL по session_id
+    video_url_by_session = f"https://ru.selenoid.autotests.cloud/video/{driver.session_id}.mp4"
+
+    video_found = False
+
+    # Пробуем скачать видео по имени теста
     try:
-        # Получаем session_id из драйвера
-        session_id = driver.session_id
-        # Формируем прямую ссылку на видео Selenoid
-        video_url = f"https://ru.selenoid.autotests.cloud/video/{session_id}.mp4"
-
-        print(f"🎥 Видео URL: {video_url}")
-
-        allure.attach(
-            f'<html><body><video width="100%" height="100%" controls autoplay>'
-            f'<source src="{video_url}" type="video/mp4">'
-            f'Your browser does not support the video tag.</video></body></html>',
-            name="Video Recording",
-            attachment_type=allure.attachment_type.HTML,
-        )
-        print("✅ Видео добавлено в отчет")
+        print(f"🎥 Попытка скачать видео по URL: {video_url}")
+        response = requests.get(video_url, timeout=30)
+        if response.status_code == 200 and len(response.content) > 10000:
+            allure.attach(
+                body=response.content,
+                name=f"video_{video_name}.mp4",
+                attachment_type=AttachmentType.MP4,
+                extension='.mp4'
+            )
+            print(f"✅ Видео добавлено в отчет (по имени теста): {video_name}")
+            video_found = True
     except Exception as e:
-        allure.attach(str(e), name="Video Error", attachment_type=allure.attachment_type.TEXT)
-        print(f"❌ Ошибка при добавлении видео: {e}")
+        print(f"❌ Ошибка при скачивании видео по имени теста: {e}")
+
+    # Если не нашли - пробуем по session_id
+    if not video_found:
+        try:
+            print(f"🎥 Попытка скачать видео по session_id: {video_url_by_session}")
+            response = requests.get(video_url_by_session, timeout=30)
+            if response.status_code == 200 and len(response.content) > 10000:
+                allure.attach(
+                    body=response.content,
+                    name=f"video_{driver.session_id}.mp4",
+                    attachment_type=AttachmentType.MP4,
+                    extension='.mp4'
+                )
+                print(f"✅ Видео добавлено в отчет (по session_id): {driver.session_id}")
+                video_found = True
+        except Exception as e:
+            print(f"❌ Ошибка при скачивании видео по session_id: {e}")
+
+    # Если видео нет - пишем информативное сообщение
+    if not video_found:
+        allure.attach(
+            f"ℹ️ Видео не найдено для теста\n"
+            f"Test name: {video_name}\n"
+            f"Session ID: {driver.session_id}\n"
+            f"Проверенные URL:\n"
+            f"  - {video_url}\n"
+            f"  - {video_url_by_session}\n\n"
+            f"Возможные причины:\n"
+            f"  - Тест завершился слишком быстро\n"
+            f"  - Проблема на стороне Selenoid\n"
+            f"  - Видео еще не сгенерировано",
+            name="video_not_available",
+            attachment_type=AttachmentType.TEXT
+        )
+        print("❌ Видео не найдено")
 
 
 def add_browserstack_video(session_id, login, access_key):
@@ -115,21 +135,25 @@ def add_browserstack_video(session_id, login, access_key):
 
         video_url = browserstack_session["automation_session"]["video_url"]
 
-        allure.attach(
-            '<html><body>'
-            '<video width="100%" height="100%" controls autoplay>'
-            f'<source src="{video_url}" type="video/mp4">'
-            'Your browser does not support the video tag.'
-            '</video>'
-            '</body></html>',
-            name="BrowserStack Video Recording",
-            attachment_type=allure.attachment_type.HTML,
-        )
-        print("✅ BrowserStack видео добавлено в отчет")
+        response = requests.get(video_url, timeout=60)
+        if response.status_code == 200:
+            allure.attach(
+                body=response.content,
+                name=f"browserstack_video_{session_id}.mp4",
+                attachment_type=AttachmentType.MP4,
+                extension='.mp4'
+            )
+            print("✅ BrowserStack видео добавлено в отчет")
+        else:
+            allure.attach(
+                f"Video not available: HTTP {response.status_code}",
+                name="BrowserStack Video Error",
+                attachment_type=AttachmentType.TEXT
+            )
     except Exception as e:
         allure.attach(
             f"Failed to get video: {str(e)}",
             name="Video Error",
-            attachment_type=allure.attachment_type.TEXT
+            attachment_type=AttachmentType.TEXT
         )
         print(f"❌ Ошибка при добавлении BrowserStack видео: {e}")

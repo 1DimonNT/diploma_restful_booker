@@ -39,8 +39,8 @@ def _get_driver(request):
                 "enableVideo": True,
                 "videoName": f"{request.node.name}_{request.node.nodeid}.mp4",
                 "videoScreenSize": f"{settings.WINDOW_WIDTH}x{settings.WINDOW_HEIGHT}",
-                "videoFrameRate": 24,  # <--- ДОБАВИТЬ ЭТО
-                "sessionTimeout": "10m"  # <--- И ЭТО
+                "videoFrameRate": 24,
+                "sessionTimeout": "10m"
             }
         }
 
@@ -94,7 +94,7 @@ def browser_management(request):
     add_console_logs(browser.config.driver)
 
     if settings.SELENOID_URL:
-        add_video(browser.config.driver)
+        add_video(browser.config.driver, test_name=request.node.name)
 
     if not settings.HOLD_BROWSER_OPEN:
         log.info("🔒 Closing browser...")
