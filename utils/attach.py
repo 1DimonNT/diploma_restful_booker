@@ -45,6 +45,8 @@ def add_page_source(driver, name='page_source'):
             source = driver.driver.page_source
         else:
             source = driver.page_source
+        # Экранируем проблемные символы для XML
+        source = source.replace('&', '&amp;')
         allure.attach(source, name, AttachmentType.XML, '.xml')
     except Exception as e:
         allure.attach(f"Failed to get page source: {e}", name, AttachmentType.TEXT)
@@ -90,7 +92,7 @@ def add_browserstack_video(session_id, login, access_key):
             f'<source src="{video_url}" type="video/mp4">'
             '</video>'
             '</body></html>',
-            name="Video Recording",
+            name="BrowserStack Video Recording",
             attachment_type=allure.attachment_type.HTML,
         )
     except Exception as e:

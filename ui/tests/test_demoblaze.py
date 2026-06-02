@@ -45,11 +45,18 @@ class TestDemoblaze:
     @allure.title("Просмотр карточки товара")
     def test_4_view_product(self):
         demoblaze.open()
-        browser.element("//a[contains(text(), 'Phones')]").click()
+        # Ждем и кликаем по категории Phones
+        phones_link = browser.element("//a[contains(text(), 'Phones')]")
+        phones_link.should(be.visible).click()
+
+        # Ждем загрузки товаров и кликаем по первому товару
         WebDriverWait(browser.driver, 15).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".card-title a"))
         )
-        browser.element(".card-title a").click()
+        first_product = browser.element(".card-title a")
+        first_product.should(be.visible).click()
+
+        # Ждем загрузки страницы товара
         WebDriverWait(browser.driver, 15).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "name"))
         )
@@ -86,19 +93,34 @@ class TestDemoblaze:
     @allure.title("Добавление товара в корзину")
     def test_6_add_to_cart(self):
         demoblaze.open()
-        browser.element("//a[contains(text(), 'Phones')]").click()
+
+        # Кликаем по категории Phones
+        phones_link = browser.element("//a[contains(text(), 'Phones')]")
+        phones_link.should(be.visible).click()
+
+        # Ждем загрузки и кликаем по первому товару
         WebDriverWait(browser.driver, 15).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".card-title a"))
         )
-        browser.element(".card-title a").click()
+        first_product = browser.element(".card-title a")
+        first_product.should(be.visible).click()
+
+        # Ждем загрузки страницы товара
         WebDriverWait(browser.driver, 15).until(
             EC.text_to_be_present_in_element((By.CSS_SELECTOR, ".name"), "Samsung")
         )
-        browser.element("a.btn.btn-success").click()
+
+        # Добавляем в корзину
+        add_to_cart_btn = browser.element("a.btn.btn-success")
+        add_to_cart_btn.should(be.visible).click()
+
         WebDriverWait(browser.driver, 10).until(EC.alert_is_present())
         browser.driver.switch_to.alert.accept()
 
-        browser.element("#cartur").click()
+        # Переходим в корзину
+        cart_link = browser.element("#cartur")
+        cart_link.should(be.visible).click()
+
         WebDriverWait(browser.driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "success"))
         )
@@ -106,7 +128,8 @@ class TestDemoblaze:
     @allure.title("Отправка сообщения через форму Contact")
     def test_7_send_contact_message(self):
         demoblaze.open()
-        browser.element("//a[contains(text(), 'Contact')]").click()
+        contact_link = browser.element("//a[contains(text(), 'Contact')]")
+        contact_link.should(be.visible).click()
 
         WebDriverWait(browser.driver, 10).until(
             EC.visibility_of_element_located((By.ID, "exampleModal"))
@@ -120,7 +143,8 @@ class TestDemoblaze:
         for char in message:
             message_field.type(char)
 
-        browser.element("button[onclick='send()']").click()
+        send_btn = browser.element("button[onclick='send()']")
+        send_btn.should(be.visible).click()
 
         WebDriverWait(browser.driver, 10).until(EC.alert_is_present())
         alert_text = browser.driver.switch_to.alert.text
@@ -129,26 +153,27 @@ class TestDemoblaze:
 
     @allure.title("Переключение между категориями товаров")
     def test_8_switch_categories(self):
-        from selene import have
-
         demoblaze.open()
 
         # Категория Phones
-        browser.element("//a[contains(text(), 'Phones')]").click()
+        phones_link = browser.element("//a[contains(text(), 'Phones')]")
+        phones_link.should(be.visible).click()
         WebDriverWait(browser.driver, 10).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, ".card-title a"))
         )
         browser.element(".card-title a").should(have.text("Samsung") or have.text("Nokia"))
 
         # Категория Laptops
-        browser.element("//a[contains(text(), 'Laptops')]").click()
+        laptops_link = browser.element("//a[contains(text(), 'Laptops')]")
+        laptops_link.should(be.visible).click()
         WebDriverWait(browser.driver, 10).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, ".card-title a"))
         )
         browser.element(".card-title a").should(have.text("Sony") or have.text("MacBook"))
 
         # Категория Monitors
-        browser.element("//a[contains(text(), 'Monitors')]").click()
+        monitors_link = browser.element("//a[contains(text(), 'Monitors')]")
+        monitors_link.should(be.visible).click()
         WebDriverWait(browser.driver, 10).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, ".card-title a"))
         )
