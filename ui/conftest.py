@@ -1,3 +1,19 @@
+"""
+Фикстуры для UI тестов с использованием Selene.
+Поддержка локального запуска и Selenoid.
+"""
+
+import allure
+import pytest
+from selene import browser, support
+from allure_commons._allure import StepContext
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from config import settings
+from utils.logger import log
+from utils.attach import add_screenshot, add_page_source, add_console_logs
+
+
 def _get_driver(request):
     """Создание и настройка WebDriver (локально или через Selenoid)"""
 
@@ -8,28 +24,105 @@ def _get_driver(request):
     options.add_argument(f"--window-size={settings.WINDOW_WIDTH},{settings.WINDOW_HEIGHT}")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
 
-    # ПРЯМОЕ УКАЗАНИЕ SELENOID (без чтения из settings)
-    # Временно для отладки
-    log.info("🔧 Принудительное использование Selenoid")
-    selenoid_full_url = "http://user1:1234@selenoid.autotests.cloud/wd/hub"
+    # ПРЯМАЯ ПРОВЕРКА НА SELENOID
+    selenoid_url = settings.SELENOID_URL
+    if selenoid_url and selenoid_url.strip():
+        log.info(f"🚀 Running on Selenoid: {selenoid_url}")
 
-    capabilities = {
-        "browserName": "chrome",
-        "browserVersion": "128.0",
-        "selenoid:options": {
-            "enableVNC": True,
-            "enableVideo": True,
-            "videoName": f"{request.node.name}.mp4",
-            "videoScreenSize": "1920x1080"
+        capabilities = {
+            "browserName": browser_name,
+            "browserVersion": settings.BROWSER_VERSION,
+            "selenoid:options": {
+                "enableVNC": True,
+                "enableVideo": True,
+                "videoName": f"{request.node.name}.mp4",
+                "videoScreenSize": f"{settings.WINDOW_WIDTH}x{settings.WINDOW_HEIGHT}"
+            }
         }
-    }
 
-    for key, value in capabilities.items():
-        options.set_capability(key, value)
+        for key, value in capabilities.items():
+            options.set_capability(key, value)
 
-    driver = webdriver.Remote(command_executor=selenoid_full_url, options=options)
-    log.info("✅ Selenoid driver created")
+        # Убираем лишний /wd/hub, если он есть
+        command_executor = selenoid_url.rstrip('/')
+        if not command_executor.endswith('/wd/hub'):
+            command_executor += '/wd/hub'
+
+        driver = webdriver.Remote(command_executor=command_executor, options=options)
+    else:
+        log.info("🖥️ Running locally")
+        from webdriver_manager.chrome import ChromeDriverManager
+        from selenium.webdriver.chrome.service import Service
+
+        driver_path = ChromeDriverManager().install()
+        log.info(f"Driver path: {driver_path}")
+
+        service = Service(driver_path)
+        driver = webdriver.Chrome(service=service, options=options)
+
     return driver
+
+
+@pytest.fixture(scope="function", autouse=True)
+def browser_management(request):
+    """
+    Фикстура для управления браузером.
+    """
+    log.info("🖥️ Setting up browser...")
+
+    browser.config.base_url = settings.UI_BASE_URL
+    browser.config.timeout = settings.UI_TIMEOUT
+    browser.config._wait_decorator = support._logging.wait_with(
+        context=StepContext
+    )
+
+    browser.config.driver = _get_driver(request)
+
+    if hasattr(request, "node"):
+        request.node._selene_driver = browser.config.driver
+    request.node.driver = browser.config.driver
+
+    log.info(f"✅ Browser started: {settings.BROWSER}")
+
+    yield
+
+    add_screenshot(browser.config.driver, "📸 Final screenshot")
+    add_page_source(browser.config.driver)
+    add_console_logs(browser.config.driver)
+
+    if settings.SELENOID_URL:
+        # Функция add_video должна быть исправлена ранее
+        from utils.attach import add_video
+        add_video(browser.config.driver)
+
+    if not settings.HOLD_BROWSER_OPEN:
+        log.info("🔒 Closing browser...")
+        browser.quit()
+        log.info("✅ Browser closed")
+    else:
+        log.info("ℹ️ Browser left open")
+
+
+@pytest.fixture(scope="function", autouse=True)
+def clear_browser_state():
+    """
+    Очищает состояние браузера между тестами (cookies, localStorage, sessionStorage)
+    """
+    yield
+    try:
+        browser.driver.delete_all_cookies()
+        browser.driver.execute_script("window.localStorage.clear();")
+        browser.driver.execute_script("window.sessionStorage.clear();")
+        log.debug("Browser state cleared between tests")
+    except Exception as e:
+        log.warning(f"Failed to clear browser state: {e}")
+
+
+@pytest.fixture(scope="function")
+def open_main_page():
+    """Фикстура для открытия главной страницы"""
+    with allure.step("Opening main page"):
+        browser.open("/")
+        log.info(f"Opened: {settings.UI_BASE_URL}")
+        return browser
