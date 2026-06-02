@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import allure
+import re
 import requests
 from allure_commons.types import AttachmentType
 from config import settings
@@ -45,8 +46,13 @@ def add_page_source(driver, name='page_source'):
             source = driver.driver.page_source
         else:
             source = driver.page_source
+
         # Экранируем проблемные символы для XML
         source = source.replace('&', '&amp;')
+
+        # Исправляем незакрытые теги link
+        source = re.sub(r'<link\s+([^>]*?)(?<!/)>', r'<link \1/>', source)
+
         allure.attach(source, name, AttachmentType.XML, '.xml')
     except Exception as e:
         allure.attach(f"Failed to get page source: {e}", name, AttachmentType.TEXT)
@@ -56,13 +62,14 @@ def add_video(driver):
     """Add Selenoid video recording to Allure report"""
     try:
         session_id = driver.session_id
-        # Selenoid video URL формируется так
+        # Selenoid video URL
         video_url = f"http://ru.selenoid.autotests.cloud/video/{session_id}.mp4"
 
         allure.attach(
             '<html><body>'
             '<video width="100%" height="100%" controls autoplay>'
             f'<source src="{video_url}" type="video/mp4">'
+            'Your browser does not support the video tag.'
             '</video>'
             '</body></html>',
             name="Video Recording",
@@ -91,6 +98,7 @@ def add_browserstack_video(session_id, login, access_key):
             '<html><body>'
             '<video width="100%" height="100%" controls autoplay>'
             f'<source src="{video_url}" type="video/mp4">'
+            'Your browser does not support the video tag.'
             '</video>'
             '</body></html>',
             name="BrowserStack Video Recording",

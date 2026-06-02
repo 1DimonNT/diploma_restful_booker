@@ -11,7 +11,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from config import settings
 from utils.logger import log
-from utils.attach import add_screenshot, add_page_source, add_console_logs
+from utils.attach import add_screenshot, add_page_source, add_console_logs, add_video
 
 
 def _get_driver(request):
@@ -24,8 +24,9 @@ def _get_driver(request):
     options.add_argument(f"--window-size={settings.WINDOW_WIDTH},{settings.WINDOW_HEIGHT}")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-    # ПРЯМАЯ ПРОВЕРКА НА SELENOID
     selenoid_url = settings.SELENOID_URL
     if selenoid_url and selenoid_url.strip():
         log.info(f"🚀 Running on Selenoid: {selenoid_url}")
@@ -92,8 +93,6 @@ def browser_management(request):
     add_console_logs(browser.config.driver)
 
     if settings.SELENOID_URL:
-        # Функция add_video должна быть исправлена ранее
-        from utils.attach import add_video
         add_video(browser.config.driver)
 
     if not settings.HOLD_BROWSER_OPEN:
