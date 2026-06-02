@@ -74,10 +74,12 @@ class TestDemoblaze:
 
         WebDriverWait(browser.driver, 10).until(EC.alert_is_present())
         browser.driver.switch_to.alert.accept()
-
+        browser.driver.switch_to.alert.accept()
+        time.sleep(1)  # ← добавить
         WebDriverWait(browser.driver, 10).until(
             EC.invisibility_of_element_located((By.ID, "signInModal"))
         )
+
 
         demoblaze.click_login()
         demoblaze.fill_login_username(username)
