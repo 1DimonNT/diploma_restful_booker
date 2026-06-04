@@ -1,35 +1,45 @@
-# 🎓 Diploma Project: Demoblaze Automation
-
 <div align="center">
-
-![Python](https://shields.io)
-![Pytest](https://shields.io)
-![Selene](https://shields.io)
-![Allure](https://shields.io)
-![Ruff](https://shields.io)
-
+  <img src="https://shields.io" alt="Python">
+  <img src="https://shields.io" alt="Pytest">
+  <img src="https://shields.io" alt="Selene">
+  <img src="https://shields.io" alt="Appium">
+  <img src="https://shields.io" alt="Allure">
+  <img src="https://shields.io" alt="BrowserStack">
+  <img src="https://shields.io" alt="Ruff">
+  <img src="https://shields.io" alt="License">
 </div>
 
+# 🎓 Дипломный проект: Автоматизация тестирования UI/API/Mobile
+
 ## 📋 О проекте
-Дипломный проект по автоматизации тестирования интернет-магазина [Demoblaze](https://demoblaze.com). Работа включает в себя покрытие ключевого функционала на двух уровнях:
-- **API тесты** (6 тестов) — проверка бэкенда с валидацией по JSON Schema.
-- **UI тесты** (8 тестов) — проверка интерфейса с использованием фреймворка Selene и паттерна PageObject (в Fluent стиле).
+
+Дипломный проект по автоматизации тестирования интернет-магазина [Demoblaze](https://demoblaze.com) и мобильного приложения [Wikipedia](https://wikipedia.org).
+
+**Ключевая особенность:** объединение трех уровней тестирования в одном репозитории:
+
+
+| Уровень | Количество тестов | Описание |
+|:---|:---:|:---|
+| **🌐 UI тесты** | 8 | Веб-интерфейс Demoblaze (Selene + Selenoid) |
+| **⚙️ API тесты** | 6 | Бэкенд Demoblaze с валидацией JSON Schema |
+| **📱 Mobile тесты** | 7 | Android приложение Wikipedia (Appium + BrowserStack) |
+
+📊 **Итог: 21 тест — 100% успешных!**
 
 ---
 
-## 🛠 Технологии и инструменты
+## 🚀 Технологии и инструменты
 
 
-| Технология | Назначение |
-| :--- | :--- |
-| **Python 3.12** | Основной язык программирования |
-| **Pytest** | Тестовый фреймворк, управление фикстурами и маркерами |
-| **Selene** | Обертка над Selenium WebDriver для лаконичных UI тестов |
-| **Requests** | HTTP-клиент для отправки API-запросов |
-| **JSON Schema** | Валидация структуры и типов данных в ответах API |
-| **Allure** | Генерация подробных отчетов, логирование шагов и вложения |
-| **Ruff** | Быстрый линтер и форматтер кода |
-| **Selenoid** | Удаленный запуск браузеров в Docker-контейнерах |
+| Категория | Технологии |
+|:---|:---|
+| **Язык** | ![Python](https://shields.io) |
+| **Тестирование** | ![Pytest](https://shields.io) + ![Selene](https://shields.io) |
+| **Mobile** | ![Appium](https://shields.io) + ![BrowserStack](https://shields.io) |
+| **API** | ![Requests](https://shields.io) + ![JSON Schema](https://shields.io) |
+| **Отчетность** | ![Allure](https://shields.io) + ![Allure TestOps](https://shields.io✔-blue) |
+| **CI/CD** | ![Jenkins](https://shields.io✔-blue?logo=jenkins) |
+| **Качество кода** | ![Ruff](https://shields.io) |
 
 ---
 
@@ -37,119 +47,196 @@
 
 ```text
 diploma_restful_booker/
-├── api/                        # API тестирование
-│   ├── client.py               # Custom HTTP-клиент с логированием запросов/ответов
-│   ├── schemas/                # Шаблоны JSON Schema для валидации контрактов
-│   └── tests/                  # Набор API тестов (6 тестов)
-├── ui/                         # UI тестирование
-│   ├── pages/                  # Реализация паттерна PageObject (Fluent style)
-│   ├── tests/                  # Набор UI тестов (8 тестов)
-│   └── conftest.py             # UI-специфичные фикстуры (настройка WebDriver/Selenoid)
-├── utils/                      # Вспомогательные утилиты
-│   ├── allure_helper.py        # Кастомные хелперы для интеграции с Allure
-│   ├── attach.py               # Прикрепление скриншотов, видео и логов к отчету
-│   └── logger.py               # Конфигурация логирования
-├── config.py                   # Управление конфигурацией проекта через Pydantic
-├── conftest.py                 # Глобальные фикстуры проекта
-├── pytest.ini                  # Системные настройки Pytest и маркеры
-├── pyproject.toml              # Настройки линтера Ruff
-└── requirements.txt            # Список зависимостей проекта
+├── api/                    # API тесты
+│   ├── client.py           # HTTP-клиент
+│   ├── schemas/            # JSON Schema для валидации
+│   ├── models.py           # Pydantic модели
+│   └── tests/              # 6 тестов
+├── ui/                     # UI тесты
+│   ├── pages/              # PageObject (Fluent style)
+│   ├── conftest.py         # Selenoid настройки
+│   └── tests/              # 8 тестов
+├── mobile/                 # Mobile тесты
+│   ├── pages/              # PageObject для Wikipedia
+│   ├── conftest.py         # BrowserStack настройки
+│   ├── utils/attach.py     # Видео и скриншоты
+│   └── tests/              # 7 тестов
+├── utils/                  # Вспомогательные утилиты
+├── config.py               # Управление конфигурацией
+├── conftest.py             # Глобальные фикстуры
+├── pyproject.toml          # Настройки Ruff
+├── pytest.ini
+└── requirements.txt
 ```
 
 ---
 
-## 🧪 Покрытый функционал (Тест-кейсы)
+## 🧪 Тест-кейсы
 
-### 🔹 API тесты (6 тестов)
+### 🔹 UI тесты (Demoblaze.com)
 
-| № | Метод | Эндпоинт / Описание | Ожидаемый результат |
-| :-: | :-: | :--- | :--- |
-| **1** | `POST` | `/signup` — Регистрация нового пользователя | Успешное создание (200 OK) |
-| **2** | `POST` | `/signup` — Регистрация уже существующего пользователя | Ошибка дубликата |
-| **3** | `POST` | `/bycat` — Получение товаров из категории **Phones** | Валидный список телефонов |
-| **4** | `POST` | `/bycat` — Получение товаров из категории **Laptops** | Валидный список ноутбуков |
-| **5** | `POST` | `/login` — Авторизация с неверным паролем | Ошибка аутентификации |
-| **6** | `POST` | `/login` — Авторизация несуществующего пользователя | Ошибка аутентификации |
 
-### 🔹 UI тесты (8 тестов)
+| № | Название | Описание |
+|:---:|:---|:---|
+| 1 | Открытие главной страницы | Проверка загрузки витрины |
+| 2 | Регистрация пользователя | Создание нового аккаунта |
+| 3 | Выбор категории товаров | Фильтрация по Phones/Laptops/Monitors |
+| 4 | Просмотр карточки товара | Детальная информация |
+| 5 | Логин пользователя | Авторизация существующим пользователем |
+| 6 | Добавление в корзину | Добавление товара и проверка |
+| 7 | Отправка сообщения Contact | Форма обратной связи |
+| 8 | Переключение категорий | Динамическое обновление товаров |
 
-| № | Название теста | Сложность | Проверяемый сценарий |
-| :-: | :--- | :-: | :--- |
-| **1** | Открытие главной страницы | 🟢 Легкая | Корректное отображение витрины и элементов навигации |
-| **2** | Регистрация нового пользователя | 🟡 Средняя | Заполнение формы SignUp и проверка модального окна |
-| **3** | Выбор категории товаров | 🟡 Средняя | Фильтрация товаров на главной странице |
-| **4** | Просмотр карточки товара | 🟡 Средняя | Переход к детальной информации о выбранном продукте |
-| **5** | Логин созданным пользователем | 🔴 Высокая | Авторизация через форму Login, проверка сессии |
-| **6** | Добавление товара в корзину | 🔴 Высокая | Добавление позиции и проверка ее наличия в Cart |
-| **7** | Отправка сообщения через Contact | 🟡 Средняя | Заполнение формы обратной связи и отправка |
-| **8** | Переключение между категориями | 🟡 Средняя | Динамическое обновление сетки товаров без перезагрузки |
+### 🔹 API тесты (Demoblaze API)
+
+
+| № | Метод | Эндпоинт | Описание |
+|:---:|:---:|:---|:---|
+| 1 | POST | `/signup` | Регистрация нового пользователя |
+| 2 | POST | `/signup` | Регистрация существующего (ошибка) |
+| 3 | POST | `/bycat` | Получение товаров категории Phones |
+| 4 | POST | `/bycat` | Получение товаров категории Laptops |
+| 5 | POST | `/login` | Неверный пароль |
+| 6 | POST | `/login` | Несуществующий пользователь |
+
+### 🔹 Mobile тесты (Wikipedia Android)
+
+
+| № | Название | Описание |
+|:---:|:---|:---|
+| 1 | Complete onboarding flow | Прохождение всех 4 экранов онбординга |
+| 2 | Skip onboarding | Пропуск приветственных экранов |
+| 3 | Verify onboarding text | Проверка текстов на каждом экране |
+| 4 | Search and open article | Поиск и открытие статьи |
+| 5 | Open specific article | Поиск и открытие конкретной статьи |
+| 6 | Navigate back | Возврат к результатам поиска |
+| 7 | Search BrowserStack | Поиск "BrowserStack" в Wikipedia |
 
 ---
 
-## 🚀 Запуск тестов
+## 📊 Allure отчеты
 
-### 1. Подготовка окружения и установка зависимостей
+### Jenkins + Allure Report
+![Jenkins Allure Report](https://docs/images/jenkins-allure.png)
+
+**Результаты запуска:**
+* ✅ Всего тестов: 21
+* ✅ Успешных: 21 (100%)
+  * 📦 `mobile.tests`: 7 тестов
+  * 📦 `ui.tests`: 8 тестов
+  * 📦 `api.tests`: 6 тестов
+
+### Telegram уведомления
+![Telegram Report](https://docs/images/telegram-report.png)
+После каждой сборки Jenkins отправляет уведомление в Telegram с результатами и ссылкой на Allure отчет.
+
+### 🎬 Видео отчеты
+
+
+| Тест | Видеозапись выполнения |
+|:---|:---|
+| **📱 Mobile Test (BrowserStack)** | https://github.com/user-attachments/assets/ebc0f1c8-5dfd-4677-b9ac-a61f48457f14 |
+| **✉️ Contact Message Test** | https://github.com/user-attachments/assets/731594ee-fd9b-4aba-b504-6d233db12be0 |
+
+> 📝 *Примечание к тесту Contact:* отправляется сообщение: *"Привет! Меня зовут Дмитрий. Ищу работу AQA Python разработчиком."*
+
+### 📈 Allure TestOps (Ручные тесты)
+В Allure TestOps добавлены ручные тест-кейсы для UI сценариев:
+
+
+| ID | Название | Статус | Длительность |
+|:---|:---|:---:|:---|
+| #44714 | Открытие главной страницы | ✅ PASSED | 2s 833ms |
+| #44716 | Регистрация нового пользователя | ✅ PASSED | 490ms |
+| #44717 | Логин пользователя | ✅ PASSED | 526ms |
+| #44718 | Добавление товара в корзину | ✅ PASSED | 555ms |
+| #44719 | Отправка сообщения через Contact | ✅ PASSED | 757ms |
+
+#### Пример ручного тест-кейса: "Отправка сообщения через Contact"
+![Allure TestOps Экран 1](https://docs/images/testops-1.png)
+![Allure TestOps Экран 3](https://docs/images/testops-3.png)
+
+---
+
+## 🛠 Запуск тестов
+
+### Локальный запуск
+
 ```bash
-# Создание виртуального окружения
-python -m venv .venv
-
-# Активация окружения (Windows)
-.venv\Scripts\activate
-
-# Активация окружения (macOS/Linux)
-source .venv/bin/activate
-
-# Установка необходимых пакетов
+# Установка зависимостей
 pip install -r requirements.txt
+
+# API тесты
+pytest api/tests/ -v
+
+# UI тесты
+pytest ui/tests/ -v
+
+# Все тесты
+pytest api/tests/ ui/tests/ -v
 ```
 
-### 2. Локальный запуск тестов
+### Mobile тесты (BrowserStack)
 
-* **Запуск только API тестов:**
-  ```bash
-  pytest api/tests/ -v
-  ```
-* **Запуск только UI тестов:**
-  ```bash
-  pytest ui/tests/ -v
-  ```
-* **Запуск всех тестов сбором результатов для Allure:**
-  ```bash
-  pytest api/tests/ ui/tests/ --alluredir=allure-results -v
-  ```
+**Windows PowerShell:**
+```powershell
+\$env:CONTEXT="bstack"
+pytest mobile/tests/ -v
+```
 
-### 3. Генерация Allure-отчета
+**Linux / macOS:**
 ```bash
+export CONTEXT=bstack
+pytest mobile/tests/ -v
+```
+
+### Генерация Allure отчета
+```bash
+pytest --alluredir=allure-results
 allure serve allure-results
 ```
 
-### 4. Запуск через Selenoid (Удаленный браузер)
-Для выполнения тестов в облачной инфраструктуре или удаленном Selenoid-сервере, настройте файл `.env`, раскомментировав и заполнив следующие переменные:
-```env
-SELENOID_URL=https://autotests.cloud
-SELENOID_USER=user1
-SELENOID_PASSWORD=1234
-```
+### Jenkins
+Проект настроен в Jenkins с параметризованной сборкой:
+* Выбор контекста (`bstack` / `local_emulator`)
+* Автоматическая публикация Allure отчета
+* Уведомления в Telegram
 
 ---
 
-## 📝 Выполнение критериев диплома
-- [x] **5+ API тестов** — Реализовано 6 комплексных проверок.
-- [x] **7+ UI тестов** — Реализовано 8 сценариев.
-- [x] **Паттерн PageObject** — Использована библиотека Selene в лаконичном Fluent style.
-- [x] **Валидация контрактов** — API ответы строго проверяются через JSON Schema.
-- [x] **Allure отчетность** — Интегрированы шаги (`allure.step`) и вложения (скриншоты, логи, видео).
-- [x] **Гибкая конфигурация** — Настройки pytest, маркеры и использование Pydantic для конфигов.
-- [x] **Чистота кода** — Проект полностью проверен и отформатирован с помощью Ruff.
-- [x] **Мультиплатформенность** — Поддерживается как локальный запуск, так и удаленный через Selenoid.
+## ✅ Выполнение критериев диплома
+
+
+| Критерий | Статус | Детали |
+|:---|:---:|:---|
+| **5+ API тестов** | ✅ | 6 тестов с JSON Schema валидацией |
+| **7+ UI тестов** | ✅ | 8 тестов с PageObject (Fluent style) |
+| **3+ Mobile тестов** | ✅ | 7 тестов на BrowserStack |
+| **PageObject** | ✅ | Реализован для UI и Mobile |
+| **Модели (Pydantic/JSON Schema)** | ✅ | Pydantic модели для API, JSON Schema |
+| **Allure отчетность** | ✅ | Скриншоты, видео, логи, TestOps |
+| **Allure TestOps (ручные тесты)** | ✅ | Добавлено 5 ручных тест-кейсов |
+| **Jenkins CI/CD** | ✅ | Параметризованная сборка |
+| **Telegram уведомления** | ✅ | Автоматические оповещения |
+| **GitHub профиль** | ✅ | README с бейджами и видео |
+| **Ruff линтинг** | ✅ | Код проверен и отформатирован |
 
 ---
 
 ## 👤 Автор
-* **Студент:** Дмитрий Иванцов  
-* **Платформа:** [QA.GURU](https://qa.guru)  
+
+**Дмитрий Иванцов**
+
+[![GitHub](https://img.shields.io/badge/GitHub-1DimonNT-black?logo=github)](https://github.com)
+[![Telegram](https://img.shields.io/badge/Telegram-@dmitrii_ivantsov-blue?logo=telegram)](https://t.me)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-dmitrii--ivantsov-blue?logo=linkedin)](https://linkedin.com)
+
+* **Платформа:** QA.GURU
 
 ---
 
 ## 📄 Лицензия
-Данный проект распространяется под лицензией [MIT](LICENSE).
+
+Данный проект создан исключительно в учебных и образовательных целях. Распространяется под лицензией [MIT](LICENSE).
+
+<div align="center"> <sub>Built with ❤️ for QA.GURU Diploma</sub> </div>
