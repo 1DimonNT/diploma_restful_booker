@@ -1,10 +1,10 @@
-from selene import browser, have, be
-from allure import step
 import time
+
+from allure import step
+from selene import browser, have
 
 
 class DemoblazePage:
-
     @step("Открыть главную страницу")
     def open(self):
         browser.open("https://www.demoblaze.com")

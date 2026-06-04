@@ -6,8 +6,9 @@
 import allure
 import pytest
 from allure_commons.types import AttachmentType
-from utils.logger import log
+
 from config import settings
+from utils.logger import log
 
 
 def pytest_configure(config):
@@ -53,15 +54,9 @@ def pytest_runtest_makereport(item, call):
             driver = item._selene_driver
             try:
                 allure.attach(
-                    driver.get_screenshot_as_png(),
-                    name="screenshot_on_failure",
-                    attachment_type=AttachmentType.PNG
+                    driver.get_screenshot_as_png(), name="screenshot_on_failure", attachment_type=AttachmentType.PNG
                 )
-                allure.attach(
-                    driver.page_source,
-                    name="page_source_on_failure",
-                    attachment_type=AttachmentType.HTML
-                )
+                allure.attach(driver.page_source, name="page_source_on_failure", attachment_type=AttachmentType.HTML)
                 log.error(f"❌ Test failed: {item.name}")
             except Exception as e:
                 log.error(f"Failed to attach screenshot: {e}")

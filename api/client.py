@@ -1,14 +1,14 @@
 """API клиент для Demoblaze с JSON Schema валидацией"""
+
+import json
+
 import allure
 import requests
-import json
 from jsonschema import validate
+
+from api.schemas import login_response_schema, product_response_schema, products_response_schema, signup_response_schema
 from config import settings
 from utils.logger import log
-from api.schemas import (
-    signup_response_schema, login_response_schema,
-    products_response_schema, product_response_schema
-)
 
 
 class ApiClient:
@@ -18,7 +18,7 @@ class ApiClient:
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
 
-    def _request(self, method: str, endpoint: str, json_data: dict = None, schema: dict = None):
+    def _request(self, method: str, endpoint: str, json_data: dict | None = None, schema: dict | None = None):
         """Выполняет запрос с валидацией через JSON Schema"""
         url = f"{self.base_url}{endpoint}"
 
@@ -28,12 +28,7 @@ class ApiClient:
                 log.debug(f"Request body: {json_data}")
                 allure.attach(json.dumps(json_data, indent=2), "Request Body", allure.attachment_type.JSON)
 
-            response = self.session.request(
-                method=method,
-                url=url,
-                json=json_data,
-                timeout=self.timeout
-            )
+            response = self.session.request(method=method, url=url, json=json_data, timeout=self.timeout)
 
             log.info(f"📥 Response: {response.status_code}")
 
@@ -48,9 +43,7 @@ class ApiClient:
             # Парсим JSON ответ
             response_data = response.json()
             allure.attach(
-                json.dumps(response_data, indent=2, ensure_ascii=False),
-                "Response Body",
-                allure.attachment_type.JSON
+                json.dumps(response_data, indent=2, ensure_ascii=False), "Response Body", allure.attachment_type.JSON
             )
 
             if schema:

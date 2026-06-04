@@ -4,8 +4,9 @@
 """
 
 import sys
-from loguru import logger
 from datetime import datetime
+
+from loguru import logger
 
 
 def setup_logger():
@@ -39,7 +40,7 @@ def setup_logger():
 log = setup_logger()
 
 
-def log_request(method: str, url: str, headers: dict = None, body: dict = None):
+def log_request(method: str, url: str, headers: dict | None = None, body: dict | None = None):
     """Логирование API запроса"""
     log.info(f"📤 REQUEST: {method} {url}")
     if headers:
@@ -48,7 +49,7 @@ def log_request(method: str, url: str, headers: dict = None, body: dict = None):
         log.debug(f"Body: {body}")
 
 
-def log_response(status_code: int, body: dict = None):
+def log_response(status_code: int, body: dict | None = None):
     """Логирование API ответа"""
     log.info(f"📥 RESPONSE: {status_code}")
     if body:

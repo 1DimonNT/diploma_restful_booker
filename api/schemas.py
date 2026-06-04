@@ -6,23 +6,19 @@ signup_response_schema = {
         {"type": "string", "maxLength": 0},
         {
             "type": "object",
-            "properties": {
-                "errorMessage": {"type": "string"}
-            },
+            "properties": {"errorMessage": {"type": "string"}},
             "required": ["errorMessage"],
-            "additionalProperties": False
-        }
+            "additionalProperties": False,
+        },
     ]
 }
 
 # Для /login - всегда объект с errorMessage
 login_response_schema = {
     "type": "object",
-    "properties": {
-        "errorMessage": {"type": "string"}
-    },
+    "properties": {"errorMessage": {"type": "string"}},
     "required": ["errorMessage"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 # Для /bycat - список товаров (с полями cat и img)
@@ -40,15 +36,15 @@ products_response_schema = {
                     "desc": {"type": "string"},
                     "category": {"type": "string"},
                     "cat": {"type": "string"},
-                    "img": {"type": "string"}
+                    "img": {"type": "string"},
                 },
                 "required": ["id", "title", "price"],
-                "additionalProperties": False
-            }
+                "additionalProperties": False,
+            },
         }
     },
     "required": ["Items"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 # Для /view - один товар
@@ -60,8 +56,8 @@ product_response_schema = {
         "price": {"type": "number"},
         "desc": {"type": "string"},
         "category": {"type": "string"},
-        "img": {"type": "string"}
+        "img": {"type": "string"},
     },
     "required": ["id", "title", "price"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }

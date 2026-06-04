@@ -5,13 +5,14 @@
 
 import allure
 import pytest
-from selene import browser, support
 from allure_commons._allure import StepContext
+from selene import browser, support
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+
 from config import settings
+from utils.attach import add_console_logs, add_page_source, add_screenshot, add_video
 from utils.logger import log
-from utils.attach import add_screenshot, add_page_source, add_console_logs, add_video
 
 
 def _get_driver(request):
@@ -40,22 +41,22 @@ def _get_driver(request):
                 "videoName": f"{request.node.name}_{request.node.nodeid}.mp4",
                 "videoScreenSize": f"{settings.WINDOW_WIDTH}x{settings.WINDOW_HEIGHT}",
                 "videoFrameRate": 24,
-                "sessionTimeout": "10m"
-            }
+                "sessionTimeout": "10m",
+            },
         }
 
         for key, value in capabilities.items():
             options.set_capability(key, value)
 
-        command_executor = selenoid_url.rstrip('/')
-        if not command_executor.endswith('/wd/hub'):
-            command_executor += '/wd/hub'
+        command_executor = selenoid_url.rstrip("/")
+        if not command_executor.endswith("/wd/hub"):
+            command_executor += "/wd/hub"
 
         driver = webdriver.Remote(command_executor=command_executor, options=options)
     else:
         log.info("🖥️ Running locally")
-        from webdriver_manager.chrome import ChromeDriverManager
         from selenium.webdriver.chrome.service import Service
+        from webdriver_manager.chrome import ChromeDriverManager
 
         driver_path = ChromeDriverManager().install()
         log.info(f"Driver path: {driver_path}")
@@ -75,9 +76,7 @@ def browser_management(request):
 
     browser.config.base_url = settings.UI_BASE_URL
     browser.config.timeout = settings.UI_TIMEOUT
-    browser.config._wait_decorator = support._logging.wait_with(
-        context=StepContext
-    )
+    browser.config._wait_decorator = support._logging.wait_with(context=StepContext)
 
     browser.config.driver = _get_driver(request)
 

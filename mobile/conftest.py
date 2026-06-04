@@ -4,8 +4,8 @@ import allure
 import allure_commons
 import pytest
 from appium import webdriver
-from selene import browser, support
 from appium.options.android import UiAutomator2Options
+from selene import browser, support
 
 from config import settings
 from utils import attach
@@ -18,13 +18,10 @@ def pytest_addoption(parser):
         action="store",
         default="android",
         choices=["android", "ios"],
-        help="Platform to run tests on: android or ios"
+        help="Platform to run tests on: android or ios",
     )
     parser.addoption(
-        "--context",
-        action="store",
-        default=None,
-        help="Override context: local_emulator, local_real, bstack"
+        "--context", action="store", default=None, help="Override context: local_emulator, local_real, bstack"
     )
 
 
@@ -86,6 +83,7 @@ def mobile_management(request, platform):
     context = request.config.getoption("--context")
     if context:
         import os
+
         os.environ["CONTEXT"] = context
 
     # Затем перезагружаем конфиг (УЖЕ ПОСЛЕ установки переменной)
@@ -107,9 +105,7 @@ def mobile_management(request, platform):
     browser.config.timeout = settings.mobile_timeout
 
     # Enable Allure steps in Selene logs
-    browser.config._wait_decorator = support._logging.wait_with(
-        context=allure_commons._allure.StepContext
-    )
+    browser.config._wait_decorator = support._logging.wait_with(context=allure_commons._allure.StepContext)
 
     # Print session info
     session_id = browser.driver.session_id
@@ -121,7 +117,7 @@ def mobile_management(request, platform):
         allure.attach(
             f"<a href='{session_url}'>BrowserStack Session Link</a>",
             name="BrowserStack Session",
-            attachment_type=allure.attachment_type.HTML
+            attachment_type=allure.attachment_type.HTML,
         )
 
     yield

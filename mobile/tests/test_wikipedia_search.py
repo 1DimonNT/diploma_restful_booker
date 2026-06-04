@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import allure
 import pytest
+
 from mobile.pages.wikipedia_app import wikipedia
 
 
@@ -9,7 +10,6 @@ from mobile.pages.wikipedia_app import wikipedia
 @allure.tag("android", "search", "bstack")
 @allure.title("Search functionality tests")
 class TestWikipediaSearch:
-
     @allure.title("Search for 'BrowserStack' and verify results exist")
     @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.android

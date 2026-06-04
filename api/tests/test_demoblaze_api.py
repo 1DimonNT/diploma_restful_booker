@@ -1,6 +1,8 @@
+import time
+
 import allure
 import pytest
-import time
+
 from api.client import api_client
 
 
@@ -8,7 +10,6 @@ from api.client import api_client
 @allure.story("Demoblaze API")
 @pytest.mark.api
 class TestDemoblazeAPI:
-
     @allure.title("POST /signup - регистрация нового пользователя")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_signup_new_user(self):

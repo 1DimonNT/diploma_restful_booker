@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import time
+
 import allure
 import pytest
-from selene.support.shared import browser
 from appium.webdriver.common.appiumby import AppiumBy
 from selene import be
+from selene.support.shared import browser
 
 from mobile.pages.wikipedia_app import wikipedia
 
@@ -14,7 +15,6 @@ from mobile.pages.wikipedia_app import wikipedia
 @allure.tag("android", "onboarding")
 @allure.title("Onboarding screens should work correctly")
 class TestOnboarding:
-
     @allure.title("Complete onboarding flow and verify main screen")
     @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.android
@@ -60,11 +60,7 @@ class TestOnboarding:
     @pytest.mark.onboarding
     def test_onboarding__each_screen_text__should_be_correct(self):
         # Проверяем текст на каждом экране онбординга
-        screens_text = [
-            "All the world's knowledge",
-            "Data & Privacy",
-            "Follow your curiosity"
-        ]
+        screens_text = ["All the world's knowledge", "Data & Privacy", "Follow your curiosity"]
 
         for expected_text in screens_text:
             try:

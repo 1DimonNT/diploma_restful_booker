@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import allure
 import pytest
+
 from mobile.pages.wikipedia_app import wikipedia
 
 
@@ -9,7 +10,6 @@ from mobile.pages.wikipedia_app import wikipedia
 @allure.tag("android", "article", "bstack")
 @allure.title("Article viewing functionality tests")
 class TestWikipediaArticle:
-
     @allure.title("Search and click on article result")
     @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.android

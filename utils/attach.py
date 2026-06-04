@@ -1,56 +1,46 @@
 from __future__ import annotations
 
-import allure
-import re
-import requests
 import time
+
+import allure
+import requests
 from allure_commons.types import AttachmentType
-from config import settings
 
 
-def add_screenshot(driver, name='screenshot'):
+def add_screenshot(driver, name="screenshot"):
     """Добавляет скриншот в Allure отчет"""
     try:
-        if hasattr(driver, 'driver'):
-            png = driver.driver.get_screenshot_as_png()
-        else:
-            png = driver.get_screenshot_as_png()
-        allure.attach(body=png, name=name, attachment_type=AttachmentType.PNG, extension='.png')
+        png = driver.driver.get_screenshot_as_png() if hasattr(driver, "driver") else driver.get_screenshot_as_png()
+        allure.attach(body=png, name=name, attachment_type=AttachmentType.PNG, extension=".png")
         print("✅ Скриншот добавлен в отчет")
     except Exception as e:
         allure.attach(f"Failed to take screenshot: {e}", name="screenshot_error", attachment_type=AttachmentType.TEXT)
         print(f"❌ Ошибка при добавлении скриншота: {e}")
 
 
-def add_console_logs(driver, name='browser_logs'):
+def add_console_logs(driver, name="browser_logs"):
     """Добавляет логи браузера в Allure отчет"""
     try:
-        if hasattr(driver, 'driver'):
-            web_driver = driver.driver
-        else:
-            web_driver = driver
+        web_driver = driver.driver if hasattr(driver, "driver") else driver
 
         logs = web_driver.get_log("browser")
         if logs:
             log_text = "\n".join([f"[{log['level']}] {log['message']}" for log in logs])
-            allure.attach(log_text, name, AttachmentType.TEXT, '.log')
+            allure.attach(log_text, name, AttachmentType.TEXT, ".log")
             print(f"✅ {len(logs)} записей лога браузера добавлено")
         else:
-            allure.attach("No console logs available", name, AttachmentType.TEXT, '.log')
+            allure.attach("No console logs available", name, AttachmentType.TEXT, ".log")
     except Exception as e:
-        allure.attach(f"Could not retrieve console logs: {e}", name, AttachmentType.TEXT, '.log')
+        allure.attach(f"Could not retrieve console logs: {e}", name, AttachmentType.TEXT, ".log")
         print(f"❌ Ошибка при получении логов: {e}")
 
 
-def add_page_source(driver, name='page_source'):
+def add_page_source(driver, name="page_source"):
     """Добавляет HTML/XML страницы в Allure отчет"""
     try:
-        if hasattr(driver, 'driver'):
-            source = driver.driver.page_source
-        else:
-            source = driver.page_source
+        source = driver.driver.page_source if hasattr(driver, "driver") else driver.page_source
 
-        allure.attach(source, name, AttachmentType.HTML, '.html')
+        allure.attach(source, name, AttachmentType.HTML, ".html")
         print("✅ Page source добавлен в отчет")
     except Exception as e:
         allure.attach(f"Failed to get page source: {e}", name, AttachmentType.TEXT)
@@ -81,7 +71,7 @@ def add_video(driver, test_name=None):
                 body=response.content,
                 name=f"video_{video_name}.mp4",
                 attachment_type=AttachmentType.MP4,
-                extension='.mp4'
+                extension=".mp4",
             )
             print(f"✅ Видео добавлено в отчет (по имени теста): {video_name}")
             video_found = True
@@ -98,7 +88,7 @@ def add_video(driver, test_name=None):
                     body=response.content,
                     name=f"video_{driver.session_id}.mp4",
                     attachment_type=AttachmentType.MP4,
-                    extension='.mp4'
+                    extension=".mp4",
                 )
                 print(f"✅ Видео добавлено в отчет (по session_id): {driver.session_id}")
                 video_found = True
@@ -119,7 +109,7 @@ def add_video(driver, test_name=None):
             f"  - Проблема на стороне Selenoid\n"
             f"  - Видео еще не сгенерировано",
             name="video_not_available",
-            attachment_type=AttachmentType.TEXT
+            attachment_type=AttachmentType.TEXT,
         )
         print("❌ Видео не найдено")
 
@@ -130,7 +120,7 @@ def add_browserstack_video(session_id, login, access_key):
         browserstack_session = requests.get(
             url=f"https://api.browserstack.com/app-automate/sessions/{session_id}.json",
             auth=(login, access_key),
-            timeout=30
+            timeout=30,
         ).json()
 
         video_url = browserstack_session["automation_session"]["video_url"]
@@ -141,19 +131,15 @@ def add_browserstack_video(session_id, login, access_key):
                 body=response.content,
                 name=f"browserstack_video_{session_id}.mp4",
                 attachment_type=AttachmentType.MP4,
-                extension='.mp4'
+                extension=".mp4",
             )
             print("✅ BrowserStack видео добавлено в отчет")
         else:
             allure.attach(
                 f"Video not available: HTTP {response.status_code}",
                 name="BrowserStack Video Error",
-                attachment_type=AttachmentType.TEXT
+                attachment_type=AttachmentType.TEXT,
             )
     except Exception as e:
-        allure.attach(
-            f"Failed to get video: {str(e)}",
-            name="Video Error",
-            attachment_type=AttachmentType.TEXT
-        )
+        allure.attach(f"Failed to get video: {e!s}", name="Video Error", attachment_type=AttachmentType.TEXT)
         print(f"❌ Ошибка при добавлении BrowserStack видео: {e}")
