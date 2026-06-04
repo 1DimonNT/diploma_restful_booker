@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="https://shields.io" alt="Python">
-  <img src="https://shields.io" alt="Pytest">
-  <img src="https://shields.io" alt="Selene">
-  <img src="https://shields.io" alt="Appium">
-  <img src="https://shields.io" alt="Allure">
-  <img src="https://shields.io" alt="BrowserStack">
-  <img src="https://shields.io" alt="Ruff">
-  <img src="https://shields.io" alt="License">
+  <img src="https://img.shields.io/badge/Python-3.12-blue?logo=python" alt="Python">
+  <img src="https://img.shields.io/badge/Pytest-8.3-blue?logo=pytest" alt="Pytest">
+  <img src="https://img.shields.io/badge/Selene-2.0.0rc10-blue" alt="Selene">
+  <img src="https://img.shields.io/badge/Appium-2.0+-blue?logo=appium" alt="Appium">
+  <img src="https://img.shields.io/badge/Allure-2.13.5-blue?logo=allure" alt="Allure">
+  <img src="https://img.shields.io/badge/BrowserStack-Cloud-orange?logo=browserstack" alt="BrowserStack">
+  <img src="https://img.shields.io/badge/Ruff-Linter-red?logo=ruff" alt="Ruff">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
 </div>
 
 # 🎓 Дипломный проект: Автоматизация тестирования UI/API/Mobile
@@ -16,7 +16,6 @@
 Дипломный проект по автоматизации тестирования интернет-магазина [Demoblaze](https://demoblaze.com) и мобильного приложения [Wikipedia](https://wikipedia.org).
 
 **Ключевая особенность:** объединение трех уровней тестирования в одном репозитории:
-
 
 | Уровень | Количество тестов | Описание |
 |:---|:---:|:---|
@@ -30,16 +29,15 @@
 
 ## 🚀 Технологии и инструменты
 
-
 | Категория | Технологии |
 |:---|:---|
-| **Язык** | ![Python](https://shields.io) |
-| **Тестирование** | ![Pytest](https://shields.io) + ![Selene](https://shields.io) |
-| **Mobile** | ![Appium](https://shields.io) + ![BrowserStack](https://shields.io) |
-| **API** | ![Requests](https://shields.io) + ![JSON Schema](https://shields.io) |
-| **Отчетность** | ![Allure](https://shields.io) + ![Allure TestOps](https://shields.io✔-blue) |
-| **CI/CD** | ![Jenkins](https://shields.io✔-blue?logo=jenkins) |
-| **Качество кода** | ![Ruff](https://shields.io) |
+| **Язык** | Python 3.12 |
+| **Тестирование** | Pytest + Selene |
+| **Mobile** | Appium + BrowserStack |
+| **API** | Requests + JSON Schema |
+| **Отчетность** | Allure + Allure TestOps |
+| **CI/CD** | Jenkins |
+| **Качество кода** | Ruff |
 
 ---
 
@@ -49,100 +47,99 @@
 diploma_restful_booker/
 ├── api/                    # API тесты
 │   ├── client.py           # HTTP-клиент
-│   ├── schemas/            # JSON Schema для валидации
+│   ├── schemas/            # JSON Schema
 │   ├── models.py           # Pydantic модели
 │   └── tests/              # 6 тестов
 ├── ui/                     # UI тесты
-│   ├── pages/              # PageObject (Fluent style)
-│   ├── conftest.py         # Selenoid настройки
+│   ├── pages/              # PageObject
+│   ├── conftest.py         # Selenoid
 │   └── tests/              # 8 тестов
 ├── mobile/                 # Mobile тесты
-│   ├── pages/              # PageObject для Wikipedia
-│   ├── conftest.py         # BrowserStack настройки
-│   ├── utils/attach.py     # Видео и скриншоты
+│   ├── pages/              # PageObject
+│   ├── conftest.py         # BrowserStack
 │   └── tests/              # 7 тестов
-├── utils/                  # Вспомогательные утилиты
-├── config.py               # Управление конфигурацией
-├── conftest.py             # Глобальные фикстуры
-├── pyproject.toml          # Настройки Ruff
+├── utils/                  # Утилиты
+├── config.py
+├── conftest.py
+├── pyproject.toml
 ├── pytest.ini
 └── requirements.txt
 ```
-
 ---
 
 ## 🧪 Тест-кейсы
 
 ### 🔹 UI тесты (Demoblaze.com)
 
-
 | № | Название | Описание |
-|:---:|:---|:---|
+|:-:|:---|:---|
 | 1 | Открытие главной страницы | Проверка загрузки витрины |
 | 2 | Регистрация пользователя | Создание нового аккаунта |
-| 3 | Выбор категории товаров | Фильтрация по Phones/Laptops/Monitors |
+| 3 | Выбор категории товаров | Фильтрация по категориям |
 | 4 | Просмотр карточки товара | Детальная информация |
-| 5 | Логин пользователя | Авторизация существующим пользователем |
-| 6 | Добавление в корзину | Добавление товара и проверка |
+| 5 | Логин пользователя | Авторизация |
+| 6 | Добавление в корзину | Добавление товара |
 | 7 | Отправка сообщения Contact | Форма обратной связи |
-| 8 | Переключение категорий | Динамическое обновление товаров |
+| 8 | Переключение категорий | Динамическое обновление |
 
 ### 🔹 API тесты (Demoblaze API)
 
-
 | № | Метод | Эндпоинт | Описание |
-|:---:|:---:|:---|:---|
+|:-:|:-:|:---|:---|
 | 1 | POST | `/signup` | Регистрация нового пользователя |
-| 2 | POST | `/signup` | Регистрация существующего (ошибка) |
-| 3 | POST | `/bycat` | Получение товаров категории Phones |
-| 4 | POST | `/bycat` | Получение товаров категории Laptops |
+| 2 | POST | `/signup` | Регистрация существующего |
+| 3 | POST | `/bycat` | Товары категории Phones |
+| 4 | POST | `/bycat` | Товары категории Laptops |
 | 5 | POST | `/login` | Неверный пароль |
 | 6 | POST | `/login` | Несуществующий пользователь |
 
 ### 🔹 Mobile тесты (Wikipedia Android)
 
-
 | № | Название | Описание |
-|:---:|:---|:---|
-| 1 | Complete onboarding flow | Прохождение всех 4 экранов онбординга |
-| 2 | Skip onboarding | Пропуск приветственных экранов |
-| 3 | Verify onboarding text | Проверка текстов на каждом экране |
+|:-:|:---|:---|
+| 1 | Complete onboarding flow | Прохождение 4 экранов онбординга |
+| 2 | Skip onboarding | Пропуск экранов |
+| 3 | Verify onboarding text | Проверка текстов |
 | 4 | Search and open article | Поиск и открытие статьи |
-| 5 | Open specific article | Поиск и открытие конкретной статьи |
-| 6 | Navigate back | Возврат к результатам поиска |
-| 7 | Search BrowserStack | Поиск "BrowserStack" в Wikipedia |
-
----
+| 5 | Open specific article | Поиск конкретной статьи |
+| 6 | Navigate back | Возврат к результатам |
+| 7 | Search BrowserStack | Поиск "BrowserStack" |
 
 ## 📊 Allure отчеты
 
 ### Jenkins + Allure Report
-![Jenkins Allure Report](https://docs/images/jenkins-allure.png)
 
-**Результаты запуска:**
-* ✅ Всего тестов: 21
-* ✅ Успешных: 21 (100%)
-  * 📦 `mobile.tests`: 7 тестов
-  * 📦 `ui.tests`: 8 тестов
-  * 📦 `api.tests`: 6 тестов
+![Jenkins Allure Report](docs/images/jenkins-allure.png)
 
-### Telegram уведомления
-![Telegram Report](https://docs/images/telegram-report.png)
-После каждой сборки Jenkins отправляет уведомление в Telegram с результатами и ссылкой на Allure отчет.
+**Результаты:**
 
-### 🎬 Видео отчеты
+✅ **Всего тестов: 21**
 
+✅ **Успешных: 21 (100%)**
 
-| Тест | Видеозапись выполнения |
-|:---|:---|
-| **📱 Mobile Test (BrowserStack)** | https://github.com/user-attachments/assets/ebc0f1c8-5dfd-4677-b9ac-a61f48457f14 |
-| **✉️ Contact Message Test** | https://github.com/user-attachments/assets/731594ee-fd9b-4aba-b504-6d233db12be0 |
+📦 api.tests: 6 тестов
 
-> 📝 *Примечание к тесту Contact:* отправляется сообщение: *"Привет! Меня зовут Дмитрий. Ищу работу AQA Python разработчиком."*
+📦 ui.tests: 8 тестов
 
-### 📈 Allure TestOps (Ручные тесты)
-В Allure TestOps добавлены ручные тест-кейсы для UI сценариев:
+📦 mobile.tests: 7 тестов
 
+### Telegram уведомление
+
+![Telegram Report](docs/images/telegram-report.png)
+
+## 🎬 Видео отчеты
+
+### 📱 Mobile Test (BrowserStack)
+
+https://github.com/user-attachments/assets/ebc0f1c8-5dfd-4677-b9ac-a61f48457f14
+
+### ✉️ Contact Message Test
+
+https://github.com/user-attachments/assets/731594ee-fd9b-4aba-b504-6d233db12be0
+
+> 📝 Отправляется сообщение: *"Привет! Меня зовут Дмитрий. Ищу работу AQA Python разработчиком."*
+
+## 📈 Allure TestOps (Ручные тесты)
 
 | ID | Название | Статус | Длительность |
 |:---|:---|:---:|:---|
@@ -152,11 +149,9 @@ diploma_restful_booker/
 | #44718 | Добавление товара в корзину | ✅ PASSED | 555ms |
 | #44719 | Отправка сообщения через Contact | ✅ PASSED | 757ms |
 
-#### Пример ручного тест-кейса: "Отправка сообщения через Contact"
-![Allure TestOps Экран 1](https://docs/images/testops-1.png)
-![Allure TestOps Экран 3](https://docs/images/testops-3.png)
+![Allure TestOps Results](docs/images/testops-1.png)
 
----
+![Manual Test Case](docs/images/testops-3.png)
 
 ## 🛠 Запуск тестов
 
