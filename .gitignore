@@ -62,4 +62,10 @@ fff.py
 ".env.bstack" 
 ".env.credentials" 
 ".env.local_emulator" 
-".env.local_real" 
+".env.local_real"
+# Secrets
+.env.credentials
+.env.bstack
+.env.local_*
+.env.*
+!.env.example
