@@ -109,6 +109,8 @@ diploma_restful_booker/
 
 ### Jenkins + Allure Report
 
+🔗 **Jenkins Job:** [Diploma-Restful-Booker-Freestyle](https://jenkins.autotests.cloud/job/Diploma-Restful-Booker-Freestyle/)
+
 ![Jenkins Allure Report](docs/images/jenkins-allure.png)
 
 **Результаты:**
