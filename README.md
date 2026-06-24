@@ -237,6 +237,7 @@ allure serve allure-results
   </a>
   <a href="mailto:1dimonNT@gmail.com">
     <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/email.png" alt="Email" width="32" height="32">
+    <span style="font-size: 14px; vertical-align: middle;">1dimonNT@gmail.com</span>
   </a>
 </p>
 
