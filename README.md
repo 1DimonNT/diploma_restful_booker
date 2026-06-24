@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/python.png" alt="Python">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/pytest_logo.png" alt="Pytest">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/Selene.png" alt="Selene">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/appium.png" alt="Appium">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/allure.png" alt="Allure">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/BrowserStack.png" alt="BrowserStack">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/Ruff.png" alt="Ruff">
-  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/license.png" alt="License">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/python.png" alt="Python" height="28">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/pytest_logo.png" alt="Pytest" height="28">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/Selene.png" alt="Selene" height="28">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/appium.png" alt="Appium" height="28">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/allure.png" alt="Allure" height="28">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/BrowserStack.png" alt="BrowserStack" height="28">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/Ruff.png" alt="Ruff" height="28">
+  <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/license.png" alt="License" height="28">
 </div>
 
 # 🎓 Дипломный проект: Автоматизация тестирования UI/API/Mobile
