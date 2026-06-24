@@ -12,10 +12,10 @@ def add_screenshot(driver, name="screenshot"):
     try:
         png = driver.driver.get_screenshot_as_png() if hasattr(driver, "driver") else driver.get_screenshot_as_png()
         allure.attach(body=png, name=name, attachment_type=AttachmentType.PNG, extension=".png")
-        print("✅ Скриншот добавлен в отчет")
+        print("Screenshot added to report")
     except Exception as e:
         allure.attach(f"Failed to take screenshot: {e}", name="screenshot_error", attachment_type=AttachmentType.TEXT)
-        print(f"❌ Ошибка при добавлении скриншота: {e}")
+        print(f"Error adding screenshot: {e}")
 
 
 def add_console_logs(driver, name="browser_logs"):
@@ -27,12 +27,12 @@ def add_console_logs(driver, name="browser_logs"):
         if logs:
             log_text = "\n".join([f"[{log['level']}] {log['message']}" for log in logs])
             allure.attach(log_text, name, AttachmentType.TEXT, ".log")
-            print(f"✅ {len(logs)} записей лога браузера добавлено")
+            print(f"{len(logs)} browser log entries added")
         else:
             allure.attach("No console logs available", name, AttachmentType.TEXT, ".log")
     except Exception as e:
         allure.attach(f"Could not retrieve console logs: {e}", name, AttachmentType.TEXT, ".log")
-        print(f"❌ Ошибка при получении логов: {e}")
+        print(f"Error retrieving console logs: {e}")
 
 
 def add_page_source(driver, name="page_source"):
@@ -41,30 +41,23 @@ def add_page_source(driver, name="page_source"):
         source = driver.driver.page_source if hasattr(driver, "driver") else driver.page_source
 
         allure.attach(source, name, AttachmentType.HTML, ".html")
-        print("✅ Page source добавлен в отчет")
+        print("Page source added to report")
     except Exception as e:
         allure.attach(f"Failed to get page source: {e}", name, AttachmentType.TEXT)
-        print(f"❌ Ошибка при добавлении page source: {e}")
+        print(f"Error adding page source: {e}")
 
 
 def add_video(driver, test_name=None):
-    """Add Selenoid video recording to Allure report (как BINARY MP4)"""
-    time.sleep(3)  # Ждем, пока видео сгенерируется
+    """Add Selenoid video recording to Allure report (as BINARY MP4)"""
+    time.sleep(3)
 
-    # Пробуем найти видео по имени теста
     video_name = test_name if test_name else driver.session_id
-
-    # Формируем URL для видео
     video_url = f"https://ru.selenoid.autotests.cloud/video/{video_name}.mp4"
-
-    # Альтернативный URL по session_id
     video_url_by_session = f"https://ru.selenoid.autotests.cloud/video/{driver.session_id}.mp4"
-
     video_found = False
 
-    # Пробуем скачать видео по имени теста
     try:
-        print(f"🎥 Попытка скачать видео по URL: {video_url}")
+        print(f"Attempting to download video from: {video_url}")
         response = requests.get(video_url, timeout=30)
         if response.status_code == 200 and len(response.content) > 10000:
             allure.attach(
@@ -73,15 +66,14 @@ def add_video(driver, test_name=None):
                 attachment_type=AttachmentType.MP4,
                 extension=".mp4",
             )
-            print(f"✅ Видео добавлено в отчет (по имени теста): {video_name}")
+            print(f"Video added to report (by test name): {video_name}")
             video_found = True
     except Exception as e:
-        print(f"❌ Ошибка при скачивании видео по имени теста: {e}")
+        print(f"Error downloading video by test name: {e}")
 
-    # Если не нашли - пробуем по session_id
     if not video_found:
         try:
-            print(f"🎥 Попытка скачать видео по session_id: {video_url_by_session}")
+            print(f"Attempting to download video by session_id: {video_url_by_session}")
             response = requests.get(video_url_by_session, timeout=30)
             if response.status_code == 200 and len(response.content) > 10000:
                 allure.attach(
@@ -90,28 +82,27 @@ def add_video(driver, test_name=None):
                     attachment_type=AttachmentType.MP4,
                     extension=".mp4",
                 )
-                print(f"✅ Видео добавлено в отчет (по session_id): {driver.session_id}")
+                print(f"Video added to report (by session_id): {driver.session_id}")
                 video_found = True
         except Exception as e:
-            print(f"❌ Ошибка при скачивании видео по session_id: {e}")
+            print(f"Error downloading video by session_id: {e}")
 
-    # Если видео нет - пишем информативное сообщение
     if not video_found:
         allure.attach(
-            f"ℹ️ Видео не найдено для теста\n"
+            f"Video not found for test\n"
             f"Test name: {video_name}\n"
             f"Session ID: {driver.session_id}\n"
-            f"Проверенные URL:\n"
+            f"Checked URLs:\n"
             f"  - {video_url}\n"
             f"  - {video_url_by_session}\n\n"
-            f"Возможные причины:\n"
-            f"  - Тест завершился слишком быстро\n"
-            f"  - Проблема на стороне Selenoid\n"
-            f"  - Видео еще не сгенерировано",
+            f"Possible reasons:\n"
+            f"  - Test finished too quickly\n"
+            f"  - Selenoid side issue\n"
+            f"  - Video not generated yet",
             name="video_not_available",
             attachment_type=AttachmentType.TEXT,
         )
-        print("❌ Видео не найдено")
+        print("Video not found")
 
 
 def add_browserstack_video(session_id, login, access_key):
@@ -133,7 +124,7 @@ def add_browserstack_video(session_id, login, access_key):
                 attachment_type=AttachmentType.MP4,
                 extension=".mp4",
             )
-            print("✅ BrowserStack видео добавлено в отчет")
+            print("BrowserStack video added to report")
         else:
             allure.attach(
                 f"Video not available: HTTP {response.status_code}",
@@ -142,4 +133,4 @@ def add_browserstack_video(session_id, login, access_key):
             )
     except Exception as e:
         allure.attach(f"Failed to get video: {e!s}", name="Video Error", attachment_type=AttachmentType.TEXT)
-        print(f"❌ Ошибка при добавлении BrowserStack видео: {e}")
+        print(f"Error adding BrowserStack video: {e}")

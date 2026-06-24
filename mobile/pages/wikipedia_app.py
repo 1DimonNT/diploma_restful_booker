@@ -20,7 +20,7 @@ class WikipediaApp:
             try:
                 forward_btn = browser.element((AppiumBy.XPATH, "//android.view.View[@content-desc='Forward']/.."))
                 forward_btn.click()
-                print(f"✅ Clicked Forward {i + 1}")
+                print(f"Clicked Forward {i + 1}")
                 time.sleep(2)
             except Exception as e:
                 print(f"Forward {i + 1} error: {e}")
@@ -29,7 +29,7 @@ class WikipediaApp:
         try:
             next_btn = browser.element((AppiumBy.XPATH, "//android.view.View[@content-desc='Next']/.."))
             next_btn.click()
-            print("✅ Clicked Next")
+            print("Clicked Next")
             time.sleep(2)
         except Exception as e:
             print(f"Next button error: {e}")
@@ -39,9 +39,9 @@ class WikipediaApp:
             try:
                 btn = browser.element((AppiumBy.ID, "org.wikipedia.alpha:id/fragment_onboarding_forward_button"))
                 btn.with_(timeout=3).should(be.visible).click()
-                print(f"✅ Clicked Continue {i + 1}")
+                print(f"Clicked Continue {i + 1}")
                 time.sleep(1)
-            except:
+            except Exception:
                 pass
 
         return self
@@ -50,11 +50,11 @@ class WikipediaApp:
     def search(self, text: str) -> WikipediaApp:
         search_field = browser.element((AppiumBy.ACCESSIBILITY_ID, "Search Wikipedia"))
         search_field.with_(timeout=15).should(be.visible).click()
-        print("✅ Search field clicked")
+        print("Search field clicked")
 
         search_input = browser.element((AppiumBy.ID, "org.wikipedia.alpha:id/search_src_text"))
         search_input.type(text)
-        print(f"✅ Typed: {text}")
+        print(f"Typed: {text}")
         time.sleep(2)
         return self
 
@@ -62,7 +62,7 @@ class WikipediaApp:
     def results_should_contain_text(self, expected_text: str) -> WikipediaApp:
         result = browser.element((AppiumBy.XPATH, f"//android.widget.TextView[contains(@text, '{expected_text}')]"))
         result.with_(timeout=10).should(be.visible)
-        print(f"✅ Found result with: {expected_text}")
+        print(f"Found result with: {expected_text}")
         return self
 
     @allure.step("Click on first search result")
@@ -95,10 +95,10 @@ class WikipediaApp:
         try:
             title_element = browser.element((AppiumBy.ID, "org.wikipedia.alpha:id/view_page_title_text"))
             title_element.with_(timeout=5).should(have.text(expected_text))
-        except:
+        except Exception:
             page_source = browser.config.driver.page_source
             if expected_text not in page_source:
-                raise AssertionError(f"Article title does not contain '{expected_text}'")
+                raise AssertionError(f"Article title does not contain '{expected_text}'") from None
         return self
 
     @allure.step("Verify search results count is greater than {count}")
@@ -112,13 +112,11 @@ class WikipediaApp:
     def go_back(self) -> WikipediaApp:
         """Навигация назад"""
         try:
-            # Пробуем через кнопку навигации
             back_btn = browser.element((AppiumBy.ACCESSIBILITY_ID, "Navigate up"))
             back_btn.click()
-            print("✅ Navigated back")
+            print("Navigated back")
             time.sleep(2)
-        except:
-            # Или через системную кнопку Back
+        except Exception:
             browser.config.driver.back()
             time.sleep(2)
         return self

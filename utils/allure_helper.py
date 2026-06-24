@@ -30,5 +30,5 @@ def attach_response(response: Response):
             name="Response Body",
             attachment_type=AttachmentType.JSON,
         )
-    except:
+    except Exception:
         allure.attach(body=response.text, name="Response Body", attachment_type=AttachmentType.TEXT)
