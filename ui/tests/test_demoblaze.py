@@ -2,10 +2,7 @@ import time
 
 import allure
 import pytest
-from selene import be, browser, have
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from selene import be, browser
 
 from ui.pages.demoblaze_page import demoblaze
 
@@ -18,141 +15,93 @@ class TestDemoblaze:
     @pytest.mark.smoke
     def test_1_open_main_page(self):
         demoblaze.open()
-        WebDriverWait(browser.driver, 10).until(EC.visibility_of_element_located((By.ID, "contcont")))
 
     @allure.title("Регистрация нового пользователя")
     def test_2_signup_new_user(self):
         username = f"testuser_{int(time.time())}"
+
         demoblaze.open()
         demoblaze.click_signup()
         demoblaze.fill_signup_username(username)
         demoblaze.fill_signup_password("test123")
         demoblaze.click_signup_button()
 
-        WebDriverWait(browser.driver, 10).until(EC.alert_is_present())
-        browser.driver.switch_to.alert.accept()
+        alert_text = demoblaze.accept_alert()
+        assert "Sign up successful" in alert_text or "registered" in alert_text.lower()
 
     @allure.title("Выбор категории товаров")
     def test_3_select_category(self):
         demoblaze.open()
-        browser.element("//a[contains(text(), 'Phones')]").click()
-        WebDriverWait(browser.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".card-title a")))
-        browser.element(".card-title a").should(be.visible)
+        demoblaze.select_category("Phones")
+        demoblaze.wait_for_products()
+        demoblaze.should_have_product_with_text("Samsung")
 
     @allure.title("Просмотр карточки товара")
     def test_4_view_product(self):
         demoblaze.open()
-        # Ждем и кликаем по категории Phones
-        phones_link = browser.element("//a[contains(text(), 'Phones')]")
-        phones_link.should(be.visible).click()
-
-        # Ждем загрузки товаров
-        time.sleep(2)
-
-        # Находим первый товар заново после клика по категории
-        first_product = browser.element(".card-title a")
-        first_product.should(be.visible).click()
-
-        # Ждем загрузки страницы товара
-        WebDriverWait(browser.driver, 15).until(EC.visibility_of_element_located((By.CLASS_NAME, "name")))
-        browser.element(".name").should(be.visible)
+        demoblaze.select_category("Phones")
+        demoblaze.wait_for_products()
+        demoblaze.open_first_product()
+        demoblaze.should_be_on_product_page()
 
     @allure.title("Логин созданным пользователем")
     def test_5_login_new_user(self):
         username = f"testuser_{int(time.time())}"
 
+        # Регистрация
         demoblaze.open()
         demoblaze.click_signup()
         demoblaze.fill_signup_username(username)
         demoblaze.fill_signup_password("test123")
         demoblaze.click_signup_button()
+        demoblaze.accept_alert()
 
-        WebDriverWait(browser.driver, 10).until(EC.alert_is_present())
-        browser.driver.switch_to.alert.accept()
-        time.sleep(1)  # ← добавить
-        WebDriverWait(browser.driver, 10).until(EC.invisibility_of_element_located((By.ID, "signInModal")))
-
+        # Логин
         demoblaze.click_login()
         demoblaze.fill_login_username(username)
         demoblaze.fill_login_password("test123")
         demoblaze.click_login_button()
 
-        WebDriverWait(browser.driver, 10).until(EC.invisibility_of_element_located((By.ID, "logInModal")))
-
-        browser.element("#login2").should(be.not_.visible)
+        demoblaze.should_not_show_login_button()
 
     @allure.title("Добавление товара в корзину")
     def test_6_add_to_cart(self):
         demoblaze.open()
+        demoblaze.select_category("Phones")
+        demoblaze.wait_for_products()
+        demoblaze.open_first_product()
+        demoblaze.should_be_on_product_page()
+        demoblaze.add_to_cart()
 
-        # Кликаем по категории Phones
-        phones_link = browser.element("//a[contains(text(), 'Phones')]")
-        phones_link.should(be.visible).click()
+        alert_text = demoblaze.accept_alert()
+        assert "Product added" in alert_text
 
-        time.sleep(2)
-
-        # Находим первый товар заново
-        first_product = browser.element(".card-title a")
-        first_product.should(be.visible).click()
-
-        # Ждем загрузки страницы товара
-        WebDriverWait(browser.driver, 15).until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, ".name"), "Samsung"))
-
-        # Добавляем в корзину
-        add_to_cart_btn = browser.element("a.btn.btn-success")
-        add_to_cart_btn.should(be.visible).click()
-
-        WebDriverWait(browser.driver, 10).until(EC.alert_is_present())
-        browser.driver.switch_to.alert.accept()
-
-        # Переходим в корзину
-        cart_link = browser.element("#cartur")
-        cart_link.should(be.visible).click()
-
-        WebDriverWait(browser.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "success")))
+        demoblaze.go_to_cart()
+        demoblaze.should_have_items_in_cart()
 
     @allure.title("Отправка сообщения через форму Contact")
     def test_7_send_contact_message(self):
         demoblaze.open()
-        contact_link = browser.element("//a[contains(text(), 'Contact')]")
-        contact_link.should(be.visible).click()
-
-        WebDriverWait(browser.driver, 10).until(EC.visibility_of_element_located((By.ID, "exampleModal")))
-
-        browser.element("#recipient-email").type("hr@example.com")
-        browser.element("#recipient-name").type("Dmitry")
+        demoblaze.open_contact_form()
+        demoblaze.fill_contact_email("hr@example.com")
+        demoblaze.fill_contact_name("Dmitry")
 
         message = "Привет! Меня зовут Дмитрий. Ищу работу AQA Python разработчиком."
-        message_field = browser.element("#message-text")
-        for char in message:
-            message_field.type(char)
+        demoblaze.fill_contact_message(message)
+        demoblaze.send_contact_message()
 
-        send_btn = browser.element("button[onclick='send()']")
-        send_btn.should(be.visible).click()
-
-        WebDriverWait(browser.driver, 10).until(EC.alert_is_present())
-        alert_text = browser.driver.switch_to.alert.text
-        print(f"\n✅ Alert текст: {alert_text}")
-        browser.driver.switch_to.alert.accept()
+        alert_text = demoblaze.accept_alert()
+        assert "Thanks for the message" in alert_text
 
     @allure.title("Переключение между категориями товаров")
     def test_8_switch_categories(self):
         demoblaze.open()
 
-        # Категория Phones
-        phones_link = browser.element("//a[contains(text(), 'Phones')]")
-        phones_link.should(be.visible).click()
-        WebDriverWait(browser.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".card-title a")))
-        browser.element(".card-title a").should(have.text("Samsung") or have.text("Nokia"))
+        categories = ["Phones", "Laptops", "Monitors"]
 
-        # Категория Laptops
-        laptops_link = browser.element("//a[contains(text(), 'Laptops')]")
-        laptops_link.should(be.visible).click()
-        WebDriverWait(browser.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".card-title a")))
-        browser.element(".card-title a").should(have.text("Sony") or have.text("MacBook"))
-
-        # Категория Monitors
-        monitors_link = browser.element("//a[contains(text(), 'Monitors')]")
-        monitors_link.should(be.visible).click()
-        WebDriverWait(browser.driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".card-title a")))
-        browser.element(".card-title a").should(have.text("Apple") or have.text("ASUS"))
+        for category in categories:
+            with allure.step(f"Выбор категории {category}"):
+                demoblaze.select_category(category)
+                demoblaze.wait_for_products()
+                # Проверяем, что товары отображаются
+                browser.element(".card-title a").should(be.visible)

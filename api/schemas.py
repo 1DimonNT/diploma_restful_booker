@@ -1,6 +1,5 @@
 """JSON Schema для валидации API ответов"""
 
-# Для /signup - может быть пустая строка (успех) или объект с ошибкой
 signup_response_schema = {
     "oneOf": [
         {"type": "string", "maxLength": 0},
@@ -13,7 +12,6 @@ signup_response_schema = {
     ]
 }
 
-# Для /login - всегда объект с errorMessage
 login_response_schema = {
     "type": "object",
     "properties": {"errorMessage": {"type": "string"}},
@@ -21,7 +19,6 @@ login_response_schema = {
     "additionalProperties": False,
 }
 
-# Для /bycat - список товаров (с полями cat и img)
 products_response_schema = {
     "type": "object",
     "properties": {
@@ -47,7 +44,6 @@ products_response_schema = {
     "additionalProperties": False,
 }
 
-# Для /view - один товар
 product_response_schema = {
     "type": "object",
     "properties": {

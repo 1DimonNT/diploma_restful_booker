@@ -69,3 +69,4 @@ fff.py
 .env.local_*
 .env.*
 !.env.example
+.ruff_cache/

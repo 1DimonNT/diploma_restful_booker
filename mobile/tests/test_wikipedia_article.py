@@ -31,9 +31,7 @@ class TestWikipediaArticle:
         wikipedia.search("Python (programming language)")
         wikipedia.results_should_contain_text("Python")
         wikipedia.click_first_result()
-        # Проверяем, что статья открылась (не проверяем конкретный текст)
         wikipedia.article_should_be_opened()
-        print("✅ Article opened successfully")
 
     @allure.title("Open article and navigate back")
     @allure.severity(allure.severity_level.MINOR)
@@ -46,6 +44,5 @@ class TestWikipediaArticle:
         wikipedia.click_first_result()
         wikipedia.article_should_be_opened()
         wikipedia.go_back()
-        # Проверяем, что вернулись к результатам поиска
         wikipedia.results_should_contain_text("Automation")
         print("✅ Successfully navigated back to search results")

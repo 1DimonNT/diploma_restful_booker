@@ -73,7 +73,7 @@ class WikipediaApp:
         return self
 
     @allure.step("Verify article page is opened")
-    def article_should_be_opened(self) -> WikipediaApp:
+    def article_should_be_opened(self, expected_title: str | None = None) -> WikipediaApp:
         page_source = browser.config.driver.page_source
         article_indicators = ["WebView", "TextView", "page_title", "article"]
         found = False
@@ -84,12 +84,10 @@ class WikipediaApp:
                 break
         if not found:
             raise AssertionError("Article page not opened - no article indicators found")
-        return self
 
-    @allure.step("Go back to previous screen")
-    def go_back(self) -> WikipediaApp:
-        browser.driver.back()
-        time.sleep(1)
+        if expected_title and expected_title not in page_source:
+            raise AssertionError(f"Article title '{expected_title}' not found in page source")
+
         return self
 
     @allure.step("Verify article title contains text: '{expected_text}'")

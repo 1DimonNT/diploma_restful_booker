@@ -8,6 +8,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from selene import be
 from selene.support.shared import browser
 
+from config import settings
 from mobile.pages.wikipedia_app import wikipedia
 
 
@@ -20,11 +21,17 @@ class TestOnboarding:
     @pytest.mark.android
     @pytest.mark.onboarding
     def test_onboarding__complete_flow__should_show_main_screen(self):
-        # Close onboarding полностью
-        wikipedia.close_onboarding_if_present()
+        # === DEBUG ===
+        print("\n=== DEBUG ===")
+        print(f"BROWSERSTACK_USERNAME: {settings.browserstack_username}")
+        print(f"BROWSERSTACK_ACCESS_KEY: {settings.browserstack_access_key}")
+        print(f"APP_URL: {settings.app_url}")
+        print(f"CONTEXT: {settings.context}")
+        print("=== END DEBUG ===\n")
 
-        # Проверяем, что главный экран с поиском открылся
-        wikipedia.search("Test")
+        wikipedia.close_onboarding_if_present()
+        search_field = browser.element((AppiumBy.ACCESSIBILITY_ID, "Search Wikipedia"))
+        search_field.with_(timeout=10).should(be.visible)
         print("✅ Onboarding completed, main screen visible")
 
     @allure.title("Skip onboarding and verify main screen")
@@ -32,25 +39,30 @@ class TestOnboarding:
     @pytest.mark.android
     @pytest.mark.onboarding
     def test_onboarding__skip_onboarding__should_show_main_screen(self):
-        # Пропускаем онбординг через кнопку Skip
+        # === DEBUG ===
+        print("\n=== DEBUG ===")
+        print(f"BROWSERSTACK_USERNAME: {settings.browserstack_username}")
+        print(f"BROWSERSTACK_ACCESS_KEY: {settings.browserstack_access_key}")
+        print(f"APP_URL: {settings.app_url}")
+        print(f"CONTEXT: {settings.context}")
+        print("=== END DEBUG ===\n")
+
         try:
             skip_btn = browser.element((AppiumBy.XPATH, "//android.widget.TextView[@text='Skip']/.."))
             skip_btn.click()
             print("✅ Clicked Skip")
             time.sleep(2)
         except:
-            # Если Skip не сработал, используем стандартное закрытие
             wikipedia.close_onboarding_if_present()
 
-        # Проверяем, что главный экран открылся
         try:
             search_field = browser.element((AppiumBy.ACCESSIBILITY_ID, "Search Wikipedia"))
             search_field.with_(timeout=10).should(be.visible)
             print("✅ Main screen visible after skip")
         except:
-            # Если поле поиска не появилось, пробуем закрыть онбординг полностью
             wikipedia.close_onboarding_if_present()
-            wikipedia.search("Test")
+            search_field = browser.element((AppiumBy.ACCESSIBILITY_ID, "Search Wikipedia"))
+            search_field.with_(timeout=10).should(be.visible)
 
         print("✅ Skip worked, main screen visible")
 
@@ -59,7 +71,14 @@ class TestOnboarding:
     @pytest.mark.android
     @pytest.mark.onboarding
     def test_onboarding__each_screen_text__should_be_correct(self):
-        # Проверяем текст на каждом экране онбординга
+        # === DEBUG ===
+        print("\n=== DEBUG ===")
+        print(f"BROWSERSTACK_USERNAME: {settings.browserstack_username}")
+        print(f"BROWSERSTACK_ACCESS_KEY: {settings.browserstack_access_key}")
+        print(f"APP_URL: {settings.app_url}")
+        print(f"CONTEXT: {settings.context}")
+        print("=== END DEBUG ===\n")
+
         screens_text = ["All the world's knowledge", "Data & Privacy", "Follow your curiosity"]
 
         for expected_text in screens_text:
@@ -68,7 +87,6 @@ class TestOnboarding:
                 text_element.with_(timeout=5).should(be.visible)
                 print(f"✅ Found text: {expected_text}")
 
-                # Нажимаем Forward/Next для перехода
                 try:
                     next_btn = browser.element((AppiumBy.XPATH, "//android.view.View[@content-desc='Forward']/.."))
                     next_btn.click()
