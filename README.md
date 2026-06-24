@@ -225,11 +225,23 @@ allure serve allure-results
 
 **Дмитрий Иванцов**
 
-[![GitHub](https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/github.png)](https://github.com/1DimonNT)
-[![Telegram](https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/telegram.png)](https://t.me/dmitrii_ivantsov)
-[![VK](https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/vk.png)](https://vk.com/id4666416)
-[![LinkedIn](https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/linkedin.png)](https://linkedin.com/in/dmitrii-ivantsov)
-[![Email](https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/email.png)](mailto:1dimonNT@gmail.com)
+<p align="center">
+  <a href="https://github.com/1DimonNT">
+    <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/github.png" alt="GitHub" width="32" height="32">
+  </a>
+  <a href="https://t.me/dmitrii_ivantsov">
+    <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/telegram.png" alt="Telegram" width="32" height="32">
+  </a>
+  <a href="https://vk.com/id4666416">
+    <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/vk.png" alt="VK" width="32" height="32">
+  </a>
+  <a href="https://linkedin.com/in/dmitrii-ivantsov">
+    <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/linkedin.png" alt="LinkedIn" width="32" height="32">
+  </a>
+  <a href="mailto:1dimonNT@gmail.com">
+    <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/email.png" alt="Email" width="32" height="32">
+  </a>
+</p>
 
 * **Платформа:** QA.GURU
 
