@@ -108,5 +108,20 @@ class WikipediaApp:
         )
         return self
 
+    @allure.step("Go back to previous screen")
+    def go_back(self) -> WikipediaApp:
+        """Навигация назад"""
+        try:
+            # Пробуем через кнопку навигации
+            back_btn = browser.element((AppiumBy.ACCESSIBILITY_ID, "Navigate up"))
+            back_btn.click()
+            print("✅ Navigated back")
+            time.sleep(2)
+        except:
+            # Или через системную кнопку Back
+            browser.config.driver.back()
+            time.sleep(2)
+        return self
+
 
 wikipedia = WikipediaApp()
