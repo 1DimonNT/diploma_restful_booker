@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import allure
 import allure_commons
 import pytest
@@ -40,6 +42,7 @@ def platform(request):
 
 
 def get_driver_options():
+    """Получение опций драйвера с поддержкой BrowserStack и локального запуска"""
     options = UiAutomator2Options()
 
     capabilities = {
@@ -52,19 +55,31 @@ def get_driver_options():
         "fullReset": False,
     }
 
-    if settings.is_bstack and settings.app_url:
-        capabilities["app"] = settings.app_url
-        capabilities["bstack:options"] = {
-            "userName": settings.browserstack_username,
-            "accessKey": settings.browserstack_access_key,
-            "projectName": "Mobile QA Automation Project",
-            "buildName": f"Wikipedia {settings.context.capitalize()} Tests",
-            "sessionName": f"Test on {settings.device_name} ({settings.context})",
-            "local": "false",
-            "debug": "true",
-            "networkLogs": "true",
-            "consoleLogs": "info",
-        }
+    if settings.is_bstack:
+        # Берем ключи из settings (которые загружаются из переменных окружения)
+        username = settings.browserstack_username or os.environ.get("BROWSERSTACK_USERNAME")
+        access_key = settings.browserstack_access_key or os.environ.get("BROWSERSTACK_ACCESS_KEY")
+        app_url = settings.app_url or os.environ.get("APP_URL")
+
+        if username and access_key and app_url:
+            capabilities["app"] = app_url
+            capabilities["bstack:options"] = {
+                "userName": username,
+                "accessKey": access_key,
+                "projectName": "Mobile QA Automation Project",
+                "buildName": f"Wikipedia {settings.context.capitalize()} Tests",
+                "sessionName": f"Test on {settings.device_name} ({settings.context})",
+                "local": "false",
+                "debug": "true",
+                "networkLogs": "true",
+                "consoleLogs": "info",
+            }
+            print(f"✅ BrowserStack auth with user: {username}")
+        else:
+            print("\n❌ BrowserStack credentials not found!")
+            print(f"  USERNAME: {username}")
+            print(f"  ACCESS_KEY: {'***' if access_key else 'None'}")
+            print(f"  APP_URL: {app_url}")
 
     options.load_capabilities(capabilities)
     return options
@@ -74,8 +89,6 @@ def get_driver_options():
 def mobile_management(request, platform):
     context = request.config.getoption("--context")
     if context:
-        import os
-
         os.environ["CONTEXT"] = context
 
     driver_options = get_driver_options()

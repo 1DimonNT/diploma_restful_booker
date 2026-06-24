@@ -50,6 +50,10 @@ class DemoblazePage:
         alert = self._wait_for_alert()
         text = alert.text
         alert.accept()
+        # Ждем, пока модальное окно закроется после alert
+        WebDriverWait(browser.driver, 10).until(
+            EC.invisibility_of_element_located((By.ID, "signInModal"))  # signInModal - правильный ID
+        )
         return text
 
     # ========== Логин ==========
