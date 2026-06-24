@@ -235,9 +235,6 @@ allure serve allure-results
   <a href="https://vk.com/id4666416">
     <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/vk.png" alt="VK" width="32" height="32">
   </a>
-  <a href="https://linkedin.com/in/dmitrii-ivantsov">
-    <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/linkedin.png" alt="LinkedIn" width="32" height="32">
-  </a>
   <a href="mailto:1dimonNT@gmail.com">
     <img src="https://github.com/1DimonNT/diploma_restful_booker/blob/main/media/email.png" alt="Email" width="32" height="32">
   </a>
