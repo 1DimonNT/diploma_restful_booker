@@ -5,8 +5,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-
-
 class DemoblazePage:
     """Главная страница Demoblaze"""
 
@@ -59,9 +57,7 @@ class DemoblazePage:
     @step("Нажать Log in")
     def click_login(self):
         # Ждем, пока модальное окно регистрации закроется
-        WebDriverWait(browser.driver, 10).until(
-            EC.invisibility_of_element_located((By.ID, "signInModal"))
-        )
+        WebDriverWait(browser.driver, 10).until(EC.invisibility_of_element_located((By.ID, "signInModal")))
         browser.element("#login2").click()
         return self
 
